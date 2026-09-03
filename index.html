@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Session Flow — how one non-developer runs Claude Code across many projects without losing work: worktrees, handoffs, boards and a single landing path. Plain-English guide plus technical reference.">
+<style>:root{color-scheme:light dark}img{max-width:100%}</style>
+</head>
+<body>
+<title>Session Flow</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --ground:#f7fafa; --surface:#ffffff; --ink:#182022; --muted:#5b6d71;
+    --accent:#0e7c86; --accent-ink:#0a5a62; --line:#d8e2e2; --code-bg:#edf2f2;
+    --code-ink:#20494e; --ready:#3d8a4e; --chip-bg:#e3eeee; --rail:#c3d6d7;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0f1516; --surface:#151d1e; --ink:#e3eaea; --muted:#93a5a7;
+      --accent:#52c5cf; --accent-ink:#7fd4dc; --line:#283536; --code-bg:#1a2426;
+      --code-ink:#a8d5da; --ready:#6cc07d; --chip-bg:#1d2c2e; --rail:#32484a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0f1516; --surface:#151d1e; --ink:#e3eaea; --muted:#93a5a7;
+    --accent:#52c5cf; --accent-ink:#7fd4dc; --line:#283536; --code-bg:#1a2426;
+    --code-ink:#a8d5da; --ready:#6cc07d; --chip-bg:#1d2c2e; --rail:#32484a;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+  body{
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:"Public Sans",system-ui,-apple-system,sans-serif;
+    font-size:16px; line-height:1.65;
+  }
+  header.top{position:sticky; top:0; z-index:10; background:var(--ground); border-bottom:1px solid var(--line)}
+  .top-in{max-width:76rem; margin:0 auto; padding:.6rem 1.25rem; display:flex; align-items:center; gap:1.4rem; flex-wrap:wrap}
+  .brand{font-family:Bitter,Georgia,serif; font-weight:700; font-size:1.05rem; color:var(--ink); text-decoration:none}
+  .brand span{color:var(--accent)}
+  .tabs{display:flex; gap:.4rem}
+  .tabs button{
+    font:inherit; font-size:.85rem; font-weight:600; color:var(--muted);
+    background:none; border:1px solid var(--line); border-radius:99px;
+    padding:.28rem 1rem; cursor:pointer;
+  }
+  .tabs button[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:var(--ground)}
+  .tabs button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  a:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:2px}
+  main{max-width:76rem; margin:0 auto; padding:2.4rem 1.25rem 5rem}
+  .col{max-width:46rem}
+  h1{font-family:Bitter,Georgia,serif; font-weight:700; font-size:2.4rem; line-height:1.15; margin:0 0 .4rem; text-wrap:balance}
+  .kicker{font-size:.74rem; text-transform:uppercase; letter-spacing:.14em; color:var(--accent); font-weight:600; margin-bottom:.6rem}
+  .lede{font-size:1.08rem; color:var(--muted); max-width:44rem; margin:0 0 2rem}
+  .lede strong{color:var(--ink)}
+  h2{font-family:Bitter,Georgia,serif; font-weight:700; font-size:1.45rem; margin:3rem 0 .8rem; padding-top:1.4rem; border-top:1px solid var(--line); text-wrap:balance}
+  h3{font-family:Bitter,Georgia,serif; font-weight:600; font-size:1.08rem; margin:1.8rem 0 .5rem}
+  p{margin:.7rem 0; max-width:46rem}
+  ul,ol{max-width:46rem; padding-left:1.2rem}
+  li{margin:.35rem 0}
+  code, pre{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:.855em}
+  code{background:var(--code-bg); color:var(--code-ink); padding:.1em .35em; border-radius:4px}
+  pre{background:var(--code-bg); color:var(--code-ink); border:1px solid var(--line); border-radius:8px; padding:1rem 1.1rem; overflow-x:auto; line-height:1.55; max-width:46rem}
+  pre code{background:none; padding:0}
+  .tablewrap{overflow-x:auto; margin:1.2rem 0; border:1px solid var(--line); border-radius:10px}
+  table{border-collapse:collapse; width:100%; font-size:.9rem; background:var(--surface)}
+  th{text-align:left; font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600; padding:.6rem .9rem; border-bottom:1px solid var(--line); background:var(--ground)}
+  td{padding:.6rem .9rem; border-bottom:1px solid var(--line); vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td code{white-space:nowrap}
+  .facts{background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:8px; padding:1rem 1.3rem; margin:1.4rem 0; max-width:46rem}
+  .facts ol{margin:.3rem 0}
+  .rail{list-style:none; padding:0; margin:1.4rem 0; max-width:46rem; position:relative}
+  .rail li{position:relative; padding:0 0 1.15rem 1.9rem; margin:0}
+  .rail li::before{content:""; position:absolute; left:.52rem; top:.45rem; width:.62rem; height:.62rem; border-radius:50%; background:var(--accent)}
+  .rail li::after{content:""; position:absolute; left:.79rem; top:1.25rem; bottom:-.25rem; width:2px; background:var(--rail)}
+  .rail li:last-child::after{display:none}
+  .rail b{font-weight:600}
+  .pill{display:inline-block; font-size:.72rem; font-weight:600; letter-spacing:.04em; padding:.1em .6em; border-radius:99px; background:var(--chip-bg); color:var(--accent-ink); vertical-align:middle}
+  .pill.ready{color:var(--ready)}
+  .qa{max-width:46rem}
+  .qa dt{font-weight:600; margin-top:1.1rem}
+  .qa dd{margin:.25rem 0 0 0; color:var(--muted)}
+  .qa dd b, .qa dd code{color:var(--ink)}
+  .refnote{font-size:.85rem; color:var(--muted); font-style:italic; max-width:46rem; margin:.2rem 0 1rem}
+  .footnote{color:var(--muted); font-size:.85rem; margin-top:3.5rem; border-top:1px solid var(--line); padding-top:1rem; max-width:46rem}
+  section[hidden]{display:none}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#top">Session <span>Flow</span></a>
+    <div class="tabs" role="tablist" aria-label="Documentation version">
+      <button id="tab-plain" role="tab" aria-selected="true" aria-controls="panel-plain">Plain English</button>
+      <button id="tab-tech" role="tab" aria-selected="false" aria-controls="panel-tech">Technical</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============================ PLAIN ENGLISH ============================ -->
+<section id="panel-plain" role="tabpanel" aria-labelledby="tab-plain">
+  <style>
+    .scene{border-left:3px solid var(--accent); padding:.15rem 0 .15rem 1.25rem; margin:1.5rem 0; max-width:46rem}
+    .scene p{margin:.55rem 0}
+    .quote{border-left:3px solid var(--rail); padding:.15rem 0 .15rem 1.25rem; margin:1.3rem 0; max-width:46rem; color:var(--muted); font-style:italic}
+    .quote b{color:var(--ink); font-style:normal}
+    .stage{margin:2.2rem 0 0}
+    .stage .eyebrow{font-size:.7rem; text-transform:uppercase; letter-spacing:.15em; color:var(--accent); font-weight:600; display:block}
+    .stage h3{margin:.15rem 0 .4rem}
+    .define{background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:8px; padding:1.05rem 1.35rem; margin:1.5rem 0; max-width:46rem}
+    .define p{margin:.55rem 0}
+    .define p:first-child{margin-top:0}
+    .define p:last-child{margin-bottom:0}
+    .define .term{font-weight:600}
+    .deflist{list-style:none; padding:0; margin:.7rem 0}
+    .deflist li{margin:.3rem 0}
+    .deflist b{color:var(--accent-ink)}
+    .nextstep{background:var(--chip-bg); border-radius:8px; padding:.9rem 1.3rem; margin:1.8rem 0 0; max-width:46rem}
+    .nextstep p{margin:0}
+  </style>
+
+  <div class="col">
+    <div class="kicker">User guide</div>
+    <h1>Session Flow</h1>
+    <p class="lede"><strong>A developer-grade workspace for people who are not developers.</strong> Your work saves itself, your history is kept and searchable, several threads of work run side by side without colliding — and nothing reaches the real version of your project until you say yes. You never have to learn git.</p>
+  </div>
+
+  <h2>1. Where this came from — four ways of working with AI</h2>
+  <div class="col">
+    <div class="scene">
+      <p>You are three days into building something with Claude. It is going well. Then the conversation fills up, the model compresses what it remembers, and it starts contradicting decisions you made on day one. You open a fresh conversation — and the new one knows nothing. The reason you chose your approach is in the old one somewhere, and you cannot find it.</p>
+      <p>Or this. You were told to commit your work, so you did. Sometimes. You were told to push it, so you did. Sometimes. Nobody told you when to merge, or what merging even implies. Two pieces of work land in the wrong order and now there is a "conflict" — a word for a mess you did not create and cannot read.</p>
+    </div>
+    <p>Session Flow exists because of those two afternoons. Here is the ground it covers, in the order most people travel it.</p>
+    <div class="define">
+      <p><span class="term">A few definitions, in case you want to know what the machinery is doing.</span></p>
+      <ul class="deflist">
+        <li><b>Git</b> — the version-control system professional software teams use.</li>
+        <li><b>Commit</b> — save a snapshot of your work.</li>
+        <li><b>Push</b> — send those snapshots to the online backup copy.</li>
+        <li><b>Merge</b> — combine one line of work into another.</li>
+        <li><b>Conflict</b> — when git sees changes it cannot decide between.</li>
+      </ul>
+      <p>You will meet these words again below. You will never have to type — or learn — any of them.</p>
+    </div>
+
+    <div class="stage">
+      <span class="eyebrow">The "No" way</span>
+      <h3>Just talk to the chatbot</h3>
+      <p>You work in the conversation window and nowhere else. Nothing is version-controlled. Nothing is backed up beyond whatever the app happens to keep. And the model knows only what the current conversation holds — when that fills, it <b>compacts</b> (summarises its own history to make room) and detail goes.</p>
+      <p>Close the conversation and the <em>reasoning</em> goes with it. You keep the files. You lose the story of why they look like that.</p>
+    </div>
+
+    <div class="stage">
+      <span class="eyebrow">The "Old" way</span>
+      <h3>Use git, like a developer</h3>
+      <p>Git is excellent at what it is for: every version kept, several people on the same files without overwriting each other, any change reversible.</p>
+      <p>It is also complex, unforgiving, and built by and for people who use it daily. It assumes habits — commit early, pull before you push, know which branch you are on — that a business owner building their own tools does not have. Steve, in the conversation that started this project:</p>
+      <div class="quote">"I'm not an experienced developer, and Git pulls, pushes, and the rest still confuse me… You, as the AI with access to everything written about Git, are far better placed to handle it. We need to systemize the process rather than relying on memory or judgment."</div>
+      <p>The cost of not having those habits is not a warning message. It is lost work.</p>
+    </div>
+
+    <div class="stage">
+      <span class="eyebrow">The "New" way</span>
+      <h3>Automate git in the background</h3>
+      <p>The obvious fix: a background program that commits and pushes for you, so you never have to remember. Fine for one project, one person, one thing at a time.</p>
+      <p>It breaks the moment several threads of work run at once. An automation that saves everything it finds cannot tell finished work from work another live session is halfway through. An early attempt at exactly this swept up work belonging to running sessions and corrupted the project's official history.</p>
+      <p>Automation without ownership rules is not safety. It is a faster way to break something.</p>
+    </div>
+
+    <div class="stage">
+      <span class="eyebrow">The "Right" way</span>
+      <h3>Session Flow</h3>
+      <p>The full power of a professional developer's environment, and none of its ceremony.</p>
+      <p>You talk to Claude in plain English. Git happens underneath, correctly, without you learning it. Your work is saved and backed up after every exchange. Several threads run at once without colliding. Every conversation is kept, readable and searchable — so the reasoning survives, not just the files. And nothing reaches the official copy without your yes.</p>
+      <p>The standard being aimed at is Google Docs: you type, it is saved, it is safe, you can find it again, and you never once think about the mechanism.</p>
+    </div>
+  </div>
+
+  <h2>2. The core problem with standard AI sessions</h2>
+  <div class="col">
+    <p>Four things go wrong without a system like this. Session Flow is built to solve exactly these.</p>
+    <ul>
+      <li><b>Closed conversations have no history.</b> When a session ends, its reasoning ends with it. The files remain; the record of what was tried, rejected and decided does not.</li>
+      <li><b>The history you do get expires.</b> Claude Code — the app you run Claude inside — keeps its record of your conversations for about two weeks, then tidies it away. Anything you want in a month is already gone, and you find out when you go looking.</li>
+      <li><b>Context gets squeezed into a few small files.</b> Your <b>context</b> is everything the model can currently see. The usual workaround for a fading conversation is a summary file. But a summary is a compression, and "why did we do it that way" is the first thing compression throws out — which is exactly what you need six weeks later.</li>
+      <li><b>You are forced to work one thing at a time.</b> Git and Claude Code, used plainly, want one line of work in one folder. Two conversations on the same project collide. Parallel work becomes a bottleneck instead of an advantage.</li>
+    </ul>
+  </div>
+
+  <h2>3. The solution — a human-centric system</h2>
+  <div class="col">
+    <p>Three commitments, which explain nearly every choice below.</p>
+    <p><b>Everything is an ordinary text file.</b> No servers, no databases, no dashboard to keep open. The project's state lives in plain text files inside the project folder, so you can read them and edit them yourself in any text editor — Notepad, VS Code, whatever you use. Search them, back them up, treat them like any other document. If Session Flow vanished tomorrow, the files would still make sense.</p>
+    <p><b>The commands speak English and tell you what to do next.</b> You are never expected to keep track of where the project has got to, or to remember a step. One command to start work, one to stop. Everything between either happens automatically or arrives as a yes/no question with the consequence spelled out. No command assumes you already know what a <em>branch</em>, a <em>worktree</em> or a <em>session</em> is — each is explained the first time it comes up.</p>
+    <p><b>Threads of work run in parallel and talk to each other.</b> Several conversations can work on one project at once without colliding, because each gets its own private copy. They hand work between each other, and each thread has an <b>Inbox</b> where you — or another thread — can leave a note for it to pick up next time.</p>
+  </div>
+
+  <h2>4. What it is — the core concepts</h2>
+  <div class="col">
+    <p>Eleven terms carry the whole system. Everything else is in the glossary at the end.</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <tr><th>Term</th><th>What it means</th></tr>
+      <tr><td><b>Board</b></td><td>The workstream's high-level plan — what you are working on now and what comes after, split into <b>phases</b> so you can see where you are in the arc of the work.</td></tr>
+      <tr><td><b>Command</b></td><td>A plain-English instruction you type, starting with a slash — <code>/workon</code>, <code>/wrap</code>. Nine exist; <b>you only need to learn three</b> to run the whole system.</td></tr>
+      <tr><td><b>Draft copy</b></td><td>A private folder where one session's changes happen, leaving the official copy untouched until you approve the work. Git calls it a <b>worktree</b>. You never have to use either word.</td></tr>
+      <tr><td><b>Drop</b></td><td>The AI's inbox for passing ideas between workstreams — a note left in a mailbox outside every project, which <code>/workon</code> folds into the right Board's Inbox.</td></tr>
+      <tr><td><b>Handoff</b></td><td>The summary one session leaves for the next: where things stand, what is done, what is next, what is unresolved. The note you would leave a colleague taking over your desk.</td></tr>
+      <tr><td><b>Hook</b></td><td>A small background program Claude Code runs automatically at set moments. Hooks are what save your work without you asking. Six exist; you never run one yourself.</td></tr>
+      <tr><td><b>Inbox</b></td><td>The section at the bottom of the Board where new ideas wait to be <b>triaged</b>: sorted and prioritised against the existing plan. Issues, blockers, things to discuss, a thought you had in the shower. Type into it yourself whenever you like, or ask Claude to add something for you.</td></tr>
+      <tr><td><b>Official copy</b></td><td>The real, current version of the project. Git keeps it on the <code>main</code> <b>branch</b> — a branch being one line of work, a version of the project's history you can change without disturbing another.</td></tr>
+      <tr><td><b>Project</b></td><td>The overarching initiative — one folder on your computer, tracked by git. What you would normally call "the thing I am building".</td></tr>
+      <tr><td><b>Session</b></td><td>One working conversation with Claude, from opening it to closing it down. A workstream is made of many sessions, one after another.</td></tr>
+      <tr><td><b>Workstream</b></td><td>One strand of work inside a project: a feature, an area, a long-running effort. It has a short name like <code>billing-rework</code>. A project can run several at once.</td></tr>
+    </table>
+  </div>
+
+  <div class="col">
+    <h3 id="a-drop">How a drop works</h3>
+    <ol>
+      <li>A session working inside a draft copy sees only its own private snapshot of the project — including its own snapshot of every Board. Writing a note onto another workstream's Board from there would edit a stale version, and it would surface days later in the wrong shape.</li>
+      <li>So the session <b>files a drop</b> instead: the note goes into a mailbox that sits outside every project.</li>
+      <li>Next time you open the workstream it was addressed to with <code>/workon</code>, Claude collects the drop, folds it into that Board's Inbox, and triages it with you.</li>
+      <li>The drop deletes itself once delivered. The Board's Inbox is the permanent record.</li>
+    </ol>
+    <p>You never need to look at the queue. And when something cannot wait for the next session, one live session messages another directly with the <code>SendMessage</code> command.</p>
+  </div>
+
+  <h2>5. How it works — a day in the life</h2>
+  <div class="col"><h3>The commands</h3>
+    <p>Nine exist. The three in bold are the ones you actually use.</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <tr><th>Command</th><th>What it does</th><th>When to use it</th></tr>
+      <tr><td><code>/flow-help</code></td><td>Loads this guide</td><td>When you need a reminder</td></tr>
+      <tr><td><code>/land</code></td><td><b>Landing</b> is Session Flow's word for bringing finished work into the official copy — with your approval, after the tests pass</td><td>Rarely; <code>/workon</code> offers it for you</td></tr>
+      <tr><td><code>/quickfix &lt;what&gt;</code></td><td>A tiny fix, tested and brought home in one gesture</td><td>30-second fixes that do not deserve a session</td></tr>
+      <tr><td><code>/recall &lt;scope&gt; &lt;question&gt;</code></td><td>Asks a helper "what did we say or decide about X" — it reads the archive in its own memory and hands back just the answer</td><td>When you need something from an old session</td></tr>
+      <tr><td><code>/repo-health</code></td><td>A snapshot of the project's state, built by asking git rather than from memory</td><td>Any time you want to know what is going on</td></tr>
+      <tr><td><b><code>/workon &lt;name&gt;</code></b></td><td>Starts or resumes a workstream: offers to bring home any finished work, sets up your private working space, briefs you on where things stand</td><td>Every time you sit down to work</td></tr>
+      <tr><td><b><code>/wrap</code></b></td><td>Closes out the session: updates the handoff and Board, saves everything</td><td>When you are stopping for now</td></tr>
+      <tr><td><code>/wrap-end</code></td><td>Everything <code>/wrap</code> does, plus tidies the working space away</td><td>Parking the project for a while</td></tr>
+      <tr><td><b><code>/wrap-lite</code></b></td><td>Quick save, plus a ready-to-paste opener for a fresh conversation</td><td>Conversation full, but you are mid-task</td></tr>
+    </table>
+  </div>
+
+  <div class="col">
+    <h3>The working day</h3>
+    <ul class="rail">
+      <li><b>You start: <code>/workon billing-rework</code>.</b> Claude asks git what state the project is in — never its own memory. If an earlier session left finished work, it offers: <em>"Land these first? (recommended — takes about a minute.)"</em> Then it sets up your working folder, reads the handoff and Board, sorts anything in the Inbox with you, and briefs you. <b>It waits for your go-ahead before touching anything.</b></li>
+      <li><b>You work.</b> Nothing to remember. After every exchange your work is committed and pushed to <b>GitHub</b> — the online service holding your project's backup copy. If the computer dies mid-sentence, you lose the sentence.</li>
+      <li><b>Claude watches how full the conversation is getting.</b> At roughly three-quarters full you get a one-time nudge to move to a fresh conversation — early enough that the handoff gets written properly rather than in a panic. A second, more urgent nudge fires if the conversation is about to compact itself.</li>
+      <li><b>You stop, one of three ways.</b> Mid-task with the conversation full → <code>/wrap-lite</code>, which hands you an opener to paste into a new conversation. Done for now → <code>/wrap</code>, which answers one question: <b>is this finished?</b> Complete and tests pass → <span class="pill ready">ready</span> ("this can be brought home"); otherwise <span class="pill">in progress</span> with a one-line <b>status note</b> saying what is left. Parking the project → <code>/wrap-end</code>: all of that, plus the working folder is tidied away, the work still safe on GitHub and still marked ready.</li>
+      <li><b>Later — maybe days later — the work comes home.</b> The next <code>/workon</code> finds the ready work and offers to land it. Claude shows you a one-line summary of each piece, asks which to bring in, checks each still fits the latest official copy, <b>runs the tests</b>, folds the session into one tidy history entry, updates the handoff and ledger, and clears the draft away. A failed test sets that piece aside with a status note — everything else still lands, and nothing is ever half-landed.</li>
+    </ul>
+    <p>Every wrap ends with two short blocks so you never hunt back through the conversation: what it just did, then a numbered <b>Your next steps</b>.</p>
+    <p><b>Tiny fixes skip all of it.</b> <code>/quickfix fix the typo in the welcome email</code> makes the change in a throwaway draft, tests it, shows you a one-line preview, brings it home and cleans up.</p>
+  </div>
+
+  <div class="col"><h3>What runs by itself — the six hooks</h3>
+    <p>You never invoke these. They are what makes the system work in practice, and all fail <em>safe</em>: an error lets your work continue and says so, rather than blocking you.</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <tr><th>Hook</th><th>When it fires</th><th>What it does for you</th></tr>
+      <tr><td><b>flow-archive</b></td><td>After every exchange</td><td><b>The archivist.</b> Copies the conversation to a permanent archive folder, keeping a readable version of every conversation forever.</td></tr>
+      <tr><td><b>flow-checkpoint</b></td><td>After every exchange</td><td><b>The auto-saver.</b> Commits your work and pushes it to GitHub. This is why you cannot lose anything.</td></tr>
+      <tr><td><b>flow-context-nudge</b></td><td>Conversation ~three-quarters full</td><td>The one-time suggestion to move to a fresh conversation.</td></tr>
+      <tr><td><b>flow-main-guard</b></td><td>Before any of Claude's edits or git commands</td><td><b>The guard.</b> Stops Claude editing the official copy directly while parallel sessions run, and stops a wrapped conversation making further edits. Claude's tools only — your own edits are always free.</td></tr>
+      <tr><td><b>flow-precompact</b></td><td>Just before a conversation compacts itself</td><td>The same suggestion, with urgency — so the handoff is written before detail is lost.</td></tr>
+      <tr><td><b>flow-report</b></td><td>When a session starts</td><td>One line of orientation — e.g. "2 pieces of work READY to land". Read-only.</td></tr>
+    </table>
+  </div>
+
+  <div class="col">
+    <h3>Starting a project</h3>
+    <p>A project is a normal folder on your computer, wherever you keep your work — not inside any special Claude folder. The one requirement is that it is tracked by git. If Claude Code already works on the project, it almost certainly is. For a brand-new folder, tell Claude <em>"set up git in this folder and connect it to GitHub"</em> — a one-minute job.</p>
+    <p>After that there is nothing to configure. <code>/workon &lt;name&gt;</code> creates the working space; the first <code>/wrap</code> writes the handoff and settings file. When Claude writes <b>tests</b> — small automatic checks that the thing still does what it should — <code>/wrap</code> records how to run them, and from then on they run before any work reaches the official copy.</p>
+    <p>The Board comes later, deliberately: phases only mean something once a plan exists, so the Board is created the moment a plan is approved, with phases matching that plan's milestones. A workstream that is still an open question does not get one yet. Ask for one any time with <code>/dev-project setup</code>.</p>
+
+    <h3>Bringing an existing project in</h3>
+    <p>Nothing converts until you touch it. The first time <code>/workon</code> or <code>/wrap</code> meets a project whose handoff predates Session Flow, it offers a one-time migration: one yes archives the old handoff, rewrites it to the current format, creates the settings file, and converts any external board into a local Board file — showing you the mapping for approval first. It copies everything as it stands, flagging what looks out of date rather than dropping it silently. Bringing the content up to date happens <em>with you</em>, in the next live session.</p>
+  </div>
+
+  <h2>6. What you get</h2>
+  <div class="col">
+    <ul>
+      <li><b>A developer-grade environment without the learning curve.</b> Version control, parallel work, automatic test checks, reversible history — all running properly, none of it requiring you to learn git.</li>
+      <li><b>Work that cannot be lost.</b> Every exchange is saved and backed up. Forgetting to save is not a failure mode here; forgetting to wrap costs you a summary, not work.</li>
+      <li><b>A permanent, searchable history.</b> Every conversation kept in readable form, forever, outside the project. <code>/recall</code> answers questions from it — <em>"what did we decide about the pricing tiers?"</em> — without dragging the old conversation into your current one.</li>
+      <li><b>Nothing changes without your yes.</b> Claude never merges work on its own. Always a preview, a test run, an approval.</li>
+      <li><b>Parallel threads that coordinate.</b> Several strands at once, each isolated, each able to hand notes to the others.</li>
+      <li><b>A guide, not just a tool.</b> Every command says what it just did and what to do next, in plain English.</li>
+    </ul>
+    <div class="nextstep"><p><b>Your next step:</b> open a project and run <code>/workon &lt;name&gt;</code>. For a new workstream, use a short lowercase name like <code>billing-rework</code>. Everything else is offered to you as you go.</p></div>
+  </div>
+
+  <h2>Appendix A — where things live</h2>
+<pre><code>your-project/
+├── HANDOFF.md                  ← the handoff (or the index, if several workstreams)
+├── HANDOFF-&lt;name&gt;.md           ← one handoff per workstream
+├── BOARD-&lt;name&gt;.md             ← the Board, with the Inbox at the bottom
+├── docs/
+│   ├── ledger.md               ← what changed, why, and what was reversed
+│   └── &lt;name&gt;-runbook.md       ← how to operate the thing
+├── _handoff-archive/           ← retired workstreams' handoffs
+└── .claude/
+    ├── flow.yaml               ← project settings (test command, parallel mode)
+    ├── branch-state/           ← status cards for work in flight
+    ├── session-reports/        ← per-session summaries when several drafts run at once
+    └── worktrees/              ← the private working folders themselves</code></pre>
+  <div class="col">
+    <p>All of it is saved into the project's history except the private working folders.</p>
+    <p>This tree shows the project <b>after</b> work has been brought home. A workstream still in flight keeps its handoff, Board and work inside its own draft copy under <code>.claude/worktrees/&lt;name&gt;/</code> until it lands — which is what stops parallel sessions making conflicting edits to your live documents.</p>
+    <p>The <b>ledger</b> is a dated list of everything ever brought home: what changed, why, and anything reversed. A <b>runbook</b> appears only when an older project is migrated in and its long reference sections move out of the handoff. The fully annotated tree is on the <b>Technical</b> tab.</p>
+    <h3>The conversation archive</h3>
+    <p>One place lives outside the project: <b>the archive</b> — every conversation, past and present, as a readable text file you can open and copy from, beside the raw original. This is where history lives after Claude Code's own list forgets it, and it is what <code>/recall</code> searches. It stays on your computer: never backed up to GitHub, never shared.</p>
+  </div>
+<pre><code>C:\ClaudeArchive\ *
+└── &lt;project&gt;\                        ← one folder per project
+    └── &lt;workstream&gt;\                 ← one folder per workstream
+        ├── billing-rework-v3--a1b2c3d4.md      ← readable transcript — kept forever
+        └── billing-rework-v3--a1b2c3d4.jsonl   ← full raw history — kept 180 days</code></pre>
+  <div class="col">
+    <p class="refnote">* Example location. The archive folder is a setting (<code>FLOW_ARCHIVE_DIR</code>) — ask Claude to set or change it. The readable version is kept forever because it takes up so little space; the raw version defaults to 180 days (<code>FLOW_ARCHIVE_RAW_DAYS</code>).</p>
+  </div>
+
+  <h2>Appendix B — common questions</h2>
+  <dl class="qa">
+    <dt>Do I have to remember to land?</dt>
+    <dd>No. <code>/workon</code> checks for finished work every time you start, and offers. Your job is saying yes. Run <code>/land</code> yourself only when you want work in the official copy <em>sooner</em> than your next session — just before putting something live, say.</dd>
+    <dt>Can I lose work if I forget to wrap?</dt>
+    <dd>No. The work is already backed up by the auto-saver. Not wrapping means the handoff was not written for that session — nothing more. The next wrap writes it from the saved history. The only cost is that the next session rebuilds context from the Board and the saved work rather than an up-to-date handoff.</dd>
+    <dt>Why is there no handoff file for my new workstream?</dt>
+    <dd>Two reasons, both normal. The handoff is created by the workstream's first <code>/wrap</code> or <code>/wrap-lite</code>, not by <code>/workon</code> — so a conversation that ended without wrapping leaves none. And until the work lands, the handoff lives inside the draft copy, appearing alongside the others only when the work comes home. To read it meanwhile, open it from the working folder or ask any live session.</dd>
+    <dt>What does "ready" actually mean?</dt>
+    <dd>The verdict <code>/wrap</code> records: the task is complete <b>and</b> the tests pass. Ready work is what <code>/workon</code> and <code>/land</code> offer to bring home. You can overrule it either way.</dd>
+    <dt>What if the tests fail when landing?</dt>
+    <dd>That piece is set aside untouched, with a status note naming the failed test. Everything else still lands. Nothing is ever half-landed.</dd>
+    <dt>What is the difference between the three wraps?</dt>
+    <dd>Same task continuing right now in a fresh conversation → <code>/wrap-lite</code>. Stopping for now, even a day → <code>/wrap</code>. Parking the project and tidying up → <code>/wrap-end</code>. When something has shipped or a phase has finished, use <code>/wrap</code> so the Board reflects it immediately.</dd>
+    <dt>Why did a command refuse to edit something?</dt>
+    <dd>It only ever refuses <b>Claude's</b> edits, never yours. Either the official copy is <b>locked</b> because parallel sessions are running — use <code>/workon</code>, <code>/quickfix</code> or <code>/land</code> for real changes — or you are in a conversation that has already been wrapped, so continue in the new one. The message says which. The handoff and Board are the exception: always writable, even on a locked official copy, because they are coordination notes rather than the project's content.</dd>
+    <dt>Can a session working on a different workstream write to my Inbox?</dt>
+    <dd>It depends where that session is working.
+      <div class="tablewrap">
+        <table>
+          <tr><th>The session doing the writing</th><th>Can it reach another workstream's Board?</th><th>How it hands a note over</th></tr>
+          <tr><td>In the <b>main copy</b> of a project</td><td><b>Yes</b> — even a locked project, even a different project</td><td>Writes the Board directly</td></tr>
+          <tr><td>In its own <b>draft copy</b>, still live</td><td><b>No</b></td><td>Files a drop; <code>/workon</code> folds it in</td></tr>
+          <tr><td>In a draft copy and already <b>wrapped</b></td><td><b>No</b></td><td>Files a drop; <code>/workon</code> folds it in</td></tr>
+        </table>
+      </div>
+      The middle row is the trap: without the drop queue it would not look like a failure. The write would succeed — just into the wrong copy. Session Flow warns instead, and hands back the exact drop command to use.
+      <p>Inbox notes are things not to be forgotten, not things that cannot wait, so delivery at that workstream's next session is the right speed. For anything genuinely urgent, one live session messages another with <code>SendMessage</code>. And nothing goes missing meanwhile: <code>/repo-health</code> reports notes still waiting for a workstream nobody has opened.</p></dd>
+    <dt>What happens to files in a draft copy that git was not tracking — a stray <code>.env</code> file, say?</dt>
+    <dd>(A <code>.env</code> file holds settings, often passwords and access keys; projects deliberately keep it out of version control so it never reaches GitHub.) Before Session Flow cleans up a finished draft copy, it copies out anything left behind that git was not tracking. But do not lean on that: <b>a draft copy should never be the only copy of anything.</b> Passwords, keys and tokens belong in your password manager and in <b>environment variables</b> — settings stored in Windows itself rather than in a file. Anything else irreplaceable belongs outside the working folder too.</dd>
+    <dt>Is there protection if Claude's own checks are bypassed?</dt>
+    <dd>Yes. GitHub can be set to refuse two things on the official copy: permanently deleting its history, and rewriting it. That runs on GitHub's servers, so it holds even if something local goes wrong. One-time setup per project; needs a paid GitHub plan if the project is private.</dd>
+    <dt>Why did VS Code warn "Failed to save" when I edited a Board or handoff?</dt>
+    <dd>You had the file open with unsaved edits while Session Flow updated it in the background — usually a landing bringing home changes made in a draft copy. Nothing is lost; your typing is still in the tab. Choose <b>Compare</b>, copy your additions across, save. Avoid <b>Overwrite</b>, which discards the background update. Writing Inbox lines and saving straight away keeps the window for this tiny.</dd>
+    <dt>Does anything remind me to come back?</dt>
+    <dd>No, by design. State lives in files that answer when asked. If you want a reminder, put one wherever you keep your own tasks.</dd>
+    <dt>Can a draft copy get stuck, unable to catch up with the official copy?</dt>
+    <dd>No. If a draft needs the latest official copy folded in mid-work — rare — Claude does it as a plain merge, never by rewriting the draft's history, so nothing can strand it. The one moment history is genuinely rewritten is landing, and that step recovers on its own even if interrupted.</dd>
+    <dt>Why does an old conversation show an error, "read-only", or an "Open Worktree" button?</dt>
+    <dd>All three mean the same harmless thing: that conversation ran in a draft copy that has since been cleaned up after its work came home. Old conversations are <b>read-only archives</b> — scroll and read freely, but messaging one makes VS Code try to restart Claude inside a folder that no longer exists, failing with a misleading "native binary failed to launch" error. Nothing is broken; no work is lost. To ask about an old session, use <code>/recall</code> in any <em>live</em> conversation — <code>/recall om-pipeline-v34 what did we decide about the OM tile?</code> — or name a whole workstream instead. Deleting an old conversation you do not need is fine.</dd>
+  </dl>
+
+  <h2>Appendix C — glossary</h2>
+  <div class="col"><p>Every term this guide defines, in one place.</p></div>
+  <div class="tablewrap">
+    <table>
+      <tr><th>Term</th><th>Plain meaning</th></tr>
+      <tr><td>auto-saver</td><td>The automatic save-and-backup after every exchange (the flow-checkpoint hook)</td></tr>
+      <tr><td>Board</td><td>The workstream's high-level plan: its phases, what is waiting, what is only an idea, and the Inbox</td></tr>
+      <tr><td>branch</td><td>Git's name for a separate line of work — a version of the project's history you can change without disturbing another</td></tr>
+      <tr><td>Claude Code</td><td>The app you run Claude inside</td></tr>
+      <tr><td>command</td><td>A plain-English instruction starting with a slash — <code>/workon</code>, <code>/wrap</code>, <code>/land</code></td></tr>
+      <tr><td>commit</td><td>Save a snapshot of your work</td></tr>
+      <tr><td>compact</td><td>What the model does when a conversation fills up — summarises its own history to make room, losing detail</td></tr>
+      <tr><td>conflict</td><td>When git sees changes it cannot decide between</td></tr>
+      <tr><td>context</td><td>Everything the model can currently see: this conversation, plus whatever files it has been shown</td></tr>
+      <tr><td>draft copy</td><td>A private folder where one session's changes happen, leaving the official copy untouched</td></tr>
+      <tr><td>drop</td><td>The AI's inbox for passing ideas between workstreams — a note left in a mailbox outside every project; <code>/workon</code> folds it into the right Board's Inbox</td></tr>
+      <tr><td><code>.env</code> file</td><td>A settings file that often holds passwords and keys, deliberately kept out of version control</td></tr>
+      <tr><td>environment variable</td><td>A setting stored in Windows itself rather than in a file — where passwords and keys belong</td></tr>
+      <tr><td>exchange / turn</td><td>One message from you plus Claude's reply. The auto-saver runs at the end of every one</td></tr>
+      <tr><td>git</td><td>The version-control system under everything — it keeps the project's history as saved snapshots</td></tr>
+      <tr><td>GitHub</td><td>The online service holding your project's backup copy, where every save is sent</td></tr>
+      <tr><td>handoff</td><td>The summary one session leaves for the next — created and updated only by the wrap commands</td></tr>
+      <tr><td>hook</td><td>A small background program Claude Code runs automatically at set moments</td></tr>
+      <tr><td>Inbox</td><td>The section at the bottom of a Board where new ideas wait to be triaged at the next <code>/workon</code></td></tr>
+      <tr><td>ledger</td><td>The dated list of everything ever brought into the official copy — what changed, why, what was reversed</td></tr>
+      <tr><td>locked</td><td>A project running parallel sessions, where Claude may not edit the official copy directly. It never applies to your own edits</td></tr>
+      <tr><td>merge / land</td><td>Combine one line of work into another — here, bringing draft work into the official copy</td></tr>
+      <tr><td>model</td><td>Claude itself — the AI doing the work. Distinct from Claude Code, which is the app it runs inside</td></tr>
+      <tr><td>official copy</td><td>The real, current version of the project — git's <code>main</code> or default branch</td></tr>
+      <tr><td>phase</td><td>One stage of a Board's plan, ending at a milestone</td></tr>
+      <tr><td>project</td><td>The overarching initiative — one git-tracked folder on your computer</td></tr>
+      <tr><td>push</td><td>Send those snapshots to the online backup copy on GitHub</td></tr>
+      <tr><td>ready</td><td>The verdict that work is complete and its tests pass, so it can be brought home</td></tr>
+      <tr><td>runbook</td><td>How to operate the thing — commands, addresses, standing rules</td></tr>
+      <tr><td><code>SendMessage</code></td><td>The command one live session uses to speak to another live session directly</td></tr>
+      <tr><td>session</td><td>One working conversation with Claude, from opening it to closing it</td></tr>
+      <tr><td>squash</td><td>Combining a session's many small snapshots into one tidy history entry</td></tr>
+      <tr><td>status note</td><td>The one-line "what is left", or "why it did not land", attached to work in flight</td></tr>
+      <tr><td>tests</td><td>Small automatic checks that confirm the project still does what it should</td></tr>
+      <tr><td>triage</td><td>Sorting and prioritising new items against the plan that already exists</td></tr>
+      <tr><td>version control</td><td>Keeping every past version of a file, so any change can be undone and any old state recovered</td></tr>
+      <tr><td>workstream</td><td>One strand of work inside a project, with a short name like <code>billing-rework</code></td></tr>
+      <tr><td>worktree</td><td>Git's name for the private folder a draft copy is edited in</td></tr>
+    </table>
+  </div>
+
+  <p class="footnote">Session Flow ships as nine slash commands, six hooks and three templates. For exact procedures, file contracts and known limitations, open the <b>Technical</b> tab. Load either version any time with <code>/flow-help</code> (or <code>/flow-help technical</code>).</p>
+</section>
+
+<!-- ============================ TECHNICAL ============================ -->
+<section id="panel-tech" role="tabpanel" aria-labelledby="tab-tech" hidden>
+  <div class="col">
+    <div class="kicker">Technical reference · last updated 2026-09-02</div>
+    <h1>Session Flow — Technical Reference</h1>
+    <p class="lede">The companion to the Plain English guide. This tab names the exact mechanisms: hooks, files, git operations, contracts. <strong>Source of truth is the command files, hooks and templates</strong> — a coverage test in <code>tests/flow/run-tests.mjs</code> fails if a flow command or registered hook is missing from either document.</p>
+  </div>
+
+  <h2>Bootstrap requirements</h2>
+  <div class="col">
+    <p>A Session Flow project is any git repository: initialised (<code>git init</code>), with a commit on its default branch and an <code>origin</code> remote for the continuous checkpoints to push to (commands resolve the real default branch via <code>git symbolic-ref refs/remotes/origin/HEAD</code>, falling back to <code>main</code>/<code>master</code> — never assumed). Without a remote, checkpoint commits still land locally and the push reports itself fail-soft, but the "work is always on GitHub" guarantee obviously doesn't hold — add a remote before relying on it. No other setup: the first <code>/workon</code> creates the worktree and branch-state; the first <code>/wrap</code> creates the handoff and <code>.claude/flow.yaml</code> from the templates. Recommended one-time hygiene: add <code>.claude/worktrees/</code> to <code>.gitignore</code> (<code>/land</code> warns if it's missing).</p>
+  </div>
+
+  <h2>Architecture in one paragraph</h2>
+  <div class="col">
+    <p>Session Flow is a set of Claude Code <b>slash commands</b> (deliberate procedures), <b>hooks</b> (automatic behaviour), and <b>file contracts</b> (state). Work happens on <code>worktree-&lt;slug&gt;-vN</code> branches in worktrees under <code>.claude/worktrees/</code>; per-branch state travels in <code>.claude/branch-state/*.yaml</code> on the branch itself; the default branch changes only via <code>/land</code>'s squash-merge (or a documented external writer). Everything is deterministic reads of git plus markdown/YAML — no daemon, no database.</p>
+  </div>
+
+  <h2>The hooks</h2>
+  <div class="col"><p>Six registered, all <b>fail-soft</b> (an internal error exits 0 and reports to stderr — never blocks work).</p></div>
+  <div class="tablewrap">
+    <table>
+      <tr><th>Hook file</th><th>Event</th><th>Behaviour</th></tr>
+      <tr><td><code>flow-report.js</code></td><td>SessionStart</td><td><b>Read-only orientation report.</b> Counts worktree branches by state: "N READY to land", "N in progress", locked-worktree warnings; suggests parallel mode when multiple worktrees exist with no <code>flow.yaml</code>. Never writes (it replaced a retired auto-sync that did).</td></tr>
+      <tr><td><code>flow-checkpoint.js</code></td><td>Stop</td><td><b>The auto-saver.</b> In a worktree: <code>git add -A</code> → commit <code>checkpoint: &lt;ISO&gt; (auto)</code> → push. Hooks aren't tool calls, so the guard never blocks a checkpoint.</td></tr>
+      <tr><td><code>flow-main-guard.js</code></td><td>PreToolUse</td><td><b>Two denials.</b> (a) <i>Main lock</i>: in a repo whose <code>flow.yaml</code> has <code>parallel_mode: true</code>, when the session's repo is the main checkout on the default branch, denies <code>Edit</code>/<code>Write</code>/<code>NotebookEdit</code> and any Bash containing a history-changing git verb (<code>commit merge rebase cherry-pick revert am reset apply restore stash clean checkout switch</code>; read-only sub-verbs like <code>stash list</code>/<code>stash show</code> are allowed) — unless this session's own unlock flag (<code>.claude/flow-unlock/&lt;session_id&gt;.json</code>, or the deprecated legacy <code>.claude/flow-unlock.json</code>) names it and hasn't expired. Carve-out: <code>Edit</code>/<code>Write</code> targeting any <code>*.json</code> directly inside <code>.claude/flow-unlock/</code> — or the legacy path — is always allowed; it is the designed admission mechanism, and a flag only admits the session named by both its filename and its contents, so allowing any session to write any flag file admits nobody extra. As of 2026-09-01 only <code>/land</code> (and <code>/quickfix</code>, which invokes the landing procedure) ever write a flag, so this carve-out now exists purely to serve the landing step. Since 2026-08-31 the carve-out emits an <b>explicit allow</b> (<code>permissionDecision: "allow"</code> on stdout) and runs before the unlock-validity check so a mid-land expiry refresh gets the same treatment. <b>Layering caveat (proven same day):</b> the hook-level allow settles only the guard's layer — the auto-mode permission classifier is an independent, nondeterministic layer that can still deny the flag Write. The deterministic fix for that layer is user-settings permission rules for the exact path (note <code>Write(*)</code>/<code>Edit(*)</code> match only a single relative path segment, so it does not cover this). <b>Coordination carve-out (widened in the final review):</b> the same explicit-allow treatment is designed to apply, unconditionally, to <code>Edit</code>/<code>Write</code> on exactly six path shapes regardless of which session or repo is asking: <code>BOARD-*.md</code>, <code>HANDOFF-*.md</code>, <code>HANDOFF.md</code> (repo root), <code>.claude/flow.yaml</code>, <code>docs/*-runbook.md</code> (directly in <code>docs/</code>) and <code>_handoff-archive/*.md</code> (directly in that directory) — the first four give the board's Inbox a real write path; the last two cover what a main-checkout <code>/wrap</code> writes into carved-out paths: MIGRATE MODE's handoff snapshot and its runbook. (<code>docs/decisions.md</code> was a seventh shape until 2026-09-02, when the record-layer consolidation retired that file; the exemption was removed with it.) Commits are not carved out: the guard still denies git verbs on a locked main, so these files sit dirty on disk until <code>/land</code>'s Step-0 pre-check auto-commits exactly that list. <code>CLAUDE.md</code>, memory files and other context files are deliberately not carved out — closer to source than coordination, so writes to them stay gated. <b>Worth repeating in plain terms: this guard has never applied to Steve.</b> It is a hook on Claude's own tool calls; Steve's own edits — in VS Code or any other editor, to any file, coordination or otherwise — were always free. (b) <i>Session seal</i>: in a worktree whose branch-state has <code>sealed: true</code> and <code>session_id</code> = this session, the same edit-class actions are denied — the wrapped conversation may not write again. Everything else in a live worktree is unrestricted.</td></tr>
+      <tr><td><code>flow-archive.js</code></td><td>Stop</td><td>Transcript archive. <b>Why it exists:</b> the harness prunes <code>~/.claude/projects</code> after ~2 weeks while workstreams span months — without the archive, older conversation history is simply gone. Per-turn incremental capture to <code>FLOW_ARCHIVE_DIR</code> (this machine: <code>D:\ClaudeArchive</code>; code default <code>~/claude-archive</code>; both env vars set per-machine in <code>settings.json</code>'s <code>env</code> block): delta-append guarded by a 256-byte tail signature (rewrite ⇒ whole re-copy), never-shrink rule against lesser duplicate copies, per-session index files under <code>_index/</code> (no shared-write contention), title-rename tracking; worktree-run sessions group under <code>&lt;repo&gt;/&lt;workstream&gt;/</code> named by the worktree (dictation-typo-proof), title-named sessions group by their <code>-vN</code> slug. Throttled scan pass (30 min) renders one idle conversation to <code>.md</code> (<code>FLOW_ARCHIVE_USER_LABEL</code> names the human in the rendered speaker labels, default "User" — cosmetic only; tool_result bodies excluded) and prunes raw older than <code>FLOW_ARCHIVE_RAW_DAYS</code> (default 180; <code>0</code> = keep only the rendered md; the prune always renders before deleting) daily — md kept forever. CLI: <code>--backfill</code> (one-off, largest copy per session id wins), <code>--render</code> (render all stale, ignore idle rule). ~0.6ms steady state.</td></tr>
+      <tr><td><code>flow-precompact.js</code></td><td>PreCompact</td><td>Nudges a <code>/wrap-lite</code> before compaction, so state reaches the handoff before context is lost.</td></tr>
+      <tr><td><code>flow-context-nudge.js</code></td><td>UserPromptSubmit</td><td>One-time "this conversation is about N% full" nudge. Gauges <b>real token usage</b> from the transcript's most recent assistant <code>usage</code> record, read from the file's last 512KB. Window size resolves: <code>FLOW_CONTEXT_LIMIT</code> env → a payload figure if supplied → learned from this transcript (past 200K ⇒ wide) → learned from the 5 most recent sibling transcripts → 200K default. Threshold <code>FLOW_CONTEXT_NUDGE_PCT</code>, default 75. ~0.2s per prompt.</td></tr>
+    </table>
+  </div>
+  <div class="col">
+    <p>On disk but <b>deliberately unregistered</b>: <code>flow-worktree-arm.js</code> — <code>WorktreeCreate</code> turned out to be a <em>provider</em> hook (it must create the worktree), not an observer, so auto-arming is owned by <code>/workon</code>. Kept test-pinned in case an observer event appears.</p>
+    <p><b>Guard resolution quirks (known, logged):</b> the guard resolves the repo from the edited file's path (Edit/Write) or the session's cwd (Bash). So <code>git -C &lt;locked-repo&gt; …</code> from <em>outside</em> the repo never triggers the lock, while <code>git -C &lt;other-repo&gt; commit</code> from <em>inside</em> a locked repo is denied. Move your cwd in its own Bash call first — an in-command <code>cd</code> doesn't help; the hook fires before the command runs.</p>
+    <p><b>The unlock flag.</b> One file per session: <code>.claude/flow-unlock/&lt;session_id&gt;.json</code> = <code>{"session_id","expires"}</code>. <b>Flags are <code>/land</code>-only now.</b> Only the landing step — shared by <code>/land</code> and <code>/quickfix</code>, which invokes it for its own branch — ever writes a flag, because only landing needs to run mutating git verbs (merge/commit/push) on a locked main. <code>/wrap</code>, <code>/wrap-lite</code>, <code>/wrap-end</code> and <code>/workon</code> never write one: their only main-checkout writes were coordination files (<code>BOARD-*.md</code>/<code>HANDOFF-*.md</code>/<code>HANDOFF.md</code>/<code>.claude/flow.yaml</code>/<code>docs/*-runbook.md</code>/<code>_handoff-archive/*.md</code>), which the coordination carve-out below exempts from the lock entirely — a file write needs no commit, so leaving them dirty in main is legal and expected, and <code>/land</code>'s Step-0 pre-check commits them. <code>/workon</code>'s old arm/disarm dance (write flag → commit + push → delete flag, just to flip <code>parallel_mode</code>) is deleted along with the general-purpose main-write key a wrap used to hand a main-checkout session that turned into real work — that session is now told to move to <code>/quickfix</code> or a worktree instead. A session is admitted only when the file <b>named for it</b> also names it inside and has not expired; each session deletes <b>only its own</b> file, on every exit path (success, abort, error); never committed (the whole directory is excluded by pathspec in <code>/land</code>'s staging and by <code>.gitignore</code>). <b>Why per-session:</b> the previous single <code>.claude/flow-unlock.json</code> was one shared path — last writer won, and every exit deleted whatever flag was present, so any session could silently revoke another's admission mid-procedure. <b>The legacy single-file admission is deleted:</b> the guard still allows <em>writing</em> the old <code>.claude/flow-unlock.json</code> path (harmless — a write there no longer grants anything), but the check that once admitted a session on its say-so is gone, closing the cross-session-flag-minting mechanism that path enabled. Housekeeping: flags left by crashed sessions are pruned by the guard on its deny path (parsed-and-expired outright; unparseable only after a 10-minute grace, so a flag caught mid-write by another session is never destroyed). A session id is used verbatim as a filename, so it must match <code>^[A-Za-z0-9._-]+$</code> — anything else is refused rather than resolved.</p>
+  </div>
+
+  <h2>Commands — exact semantics</h2>
+  <div class="tablewrap">
+    <table>
+      <tr><th>Command</th><th>Procedure summary</th></tr>
+      <tr><td><code>/workon &lt;slug&gt;</code></td><td>Fetch + prune → enumerate candidates at <b>branch level</b> (union of <code>git worktree list --porcelain</code> and <code>worktree-*</code> refs, local + origin, de-duplicated) → read each branch-state (worktree path, else <code>git show &lt;branch&gt;:…</code>, else <code>git show origin/&lt;branch&gt;:…</code> — the origin form is the only one that works for origin-only branches) → land-first offer for <code>status: ready</code> → <b>Step 2b: drain the drop queue</b> into this workstream's board Inbox and report what other workstreams still have waiting — in the main checkout, <b>before</b> <code>EnterWorktree</code>, since a drain after entry would fold notes into the branch's stale copy → transcript housekeeping (<code>flow-transcript-sweep.mjs</code>: rescues ended worktree sessions' transcripts into the main project dir; <code>--prepare</code> pre-creates the next worktree's project dir as a junction so transcripts land there from the first byte) → resolve the slug's in-progress worktree or the branch to create for <code>&lt;slug&gt;-vN</code> → auto-arm <code>parallel_mode</code> on the 2nd concurrent worktree — writes the <b>main checkout's</b> <code>flow.yaml</code> and leaves it dirty (a coordination file, so no unlock flag is needed either) <b>before</b> <code>EnterWorktree</code> switches into the new worktree; the ordering is load-bearing, since arming after entry would target the wrong checkout's copy of the file — <code>/land</code>'s Step-0 pre-check commits it, replacing the old write-flag-then-commit-push-then-delete-flag dance → resume or create the worktree with a full branch-state file → briefing → wait. <b>Never creates a board</b> — boards are born from an approved plan, not from <code>/workon</code>. <code>--help</code>, <code>--enable-parallel</code>, <code>--disable-parallel</code> (set the flag the same dirty-write way).</td></tr>
+      <tr><td><code>/wrap</code></td><td>Orient → MIGRATE MODE if the handoff lacks <code>**Flow:** v2</code> → brand-check drafts → update handoff to the v2 contract (or a <b>session report</b> if sibling branches of the same workstream are open) + index + decisions recorded in the handoff's own section + surgical board update → commit + push LAST → <b>landability verdict</b> (run <code>test_command</code>; complete + green → <code>ready</code>, else <code>in-progress</code> + note) → <b>seal</b> (<code>sealed: true</code> written, deliberately left uncommitted — committing it would be denied by the very guard it arms; the Stop-hook checkpoint commits it seconds later, which is safe: <code>/land</code> deletes the file and a new session gets a new <code>session_id</code>). Writes <b>no unlock flag</b> — in a main checkout the coordination files it touched (board/handoff) are left dirty for <code>/land</code>'s pre-check to commit.</td></tr>
+      <tr><td><code>/wrap-lite</code></td><td>Same handoff quality, same commit+push+seal; skips the decisions lift and the board; prints the <code>/workon</code> opener + next conversation name. Never removes worktrees; never creates a branch-state file for the default branch. Writes no unlock flag, same as <code>/wrap</code>.</td></tr>
+      <tr><td><code>/wrap-end</code></td><td>Everything <code>/wrap</code> does, then asks <b>parked or archived?</b> (archived → handoff moves to <code>_handoff-archive/&lt;slug&gt;-&lt;date&gt;.md</code>, index row dropped), <b>quarantines the worktree's gitignored files</b> before removing it (branch stays, pushed; no seal — nothing left to seal), prints the opener. No unconditional <code>--force</code> on the removal any more, and no unlock flag.</td></tr>
+      <tr><td><code>/land</code></td><td>Main checkout + default branch only. Write <b>your</b> unlock flag (Step 0 — still the one command that does) → dirty-coordination-files pre-check (auto-commits <code>BOARD-*.md</code>/<code>HANDOFF-*.md</code>/<code>HANDOFF.md</code>/<code>.claude/flow.yaml</code>/<code>_handoff-archive/*.md</code>/<code>docs/*-runbook.md</code> if any are dirty — widened set, identical to the guard's carve-out) → fetch + <code>pull --ff-only</code> → branch-level enumeration → <b>preview + ask</b> (all / pick / abort) → per branch: record the pre-rebase ref, then rebase (in its worktree; origin-only branches: <code>merge-base --is-ancestor</code> with strict exit-code reading, temp worktree OUTSIDE the repo if needed, local ref materialised first) — if the land aborts after this point, the branch is restored to the pre-rebase ref or force-with-lease pushed before stopping, never left rewritten and unpushed → <code>git merge --squash</code> → delete branch-state + session-report from disk (guarded <code>git rm -f</code>) → commit → <b>test gate</b> (scratch log outside the repo; red → <code>reset --hard HEAD~1</code>, branch survives with note, same abort-safe rebase rule applies) → fold docs (handoff merge, ledger entry with <b>greppable identity, no hash</b>, index regeneration) → amend with bounded blanket add (excludes <code>.claude/worktrees</code> and the unlock flag) → <b>verify presence AND absence</b>, remediating via <code>git restore --staged --source=HEAD~1</code> → cleanup: <b>quarantine each branch's worktree before removing it</b>, then worktrees-then-branch (order is load-bearing) + delete remote branch → one push → milestone check → delete unlock flag → plain-English report.</td></tr>
+      <tr><td><code>/quickfix &lt;desc&gt;</code></td><td>Scope check (≤ ~3 files, else redirect) → transcript junction (<code>--prepare</code>, before entering) → temp worktree <code>quickfix-&lt;timestamp&gt;</code> → change → <code>test_command</code> → land THIS branch via the <code>/land</code> procedure (invocation = approval; preview still shown; this is the other command that writes a flag) → cleanup: quarantine, then worktree-first-branch-second.</td></tr>
+      <tr><td><code>/repo-health</code></td><td>Read-only: fetch, status, worktree list (+ lock-PID liveness), branch-level state reads, <code>branch -vv</code>, recent log, flow.yaml, stash list, <b>pending Inbox drops</b> (<code>flow-drop.mjs list --repo</code>) → table + plain-English next actions. Never answers from recall.</td></tr>
+      <tr><td><code>/flow-help</code></td><td>Loads the plain guide; <code>technical</code> argument → the Technical Reference.</td></tr>
+      <tr><td><code>/recall &lt;scope&gt; &lt;question&gt;</code></td><td>Dispatches ONE <code>session-historian</code> agent to answer "what did we say/decide about X" from a named past conversation, a workstream slug, or the whole repo history. Searches distilled layers first (handoff/board/ledger, plus a retired decisions archive where one exists), then the archive's readable <code>.md</code> files, then live transcripts under <code>~/.claude/projects/</code> (main + worktree-keyed dirs) — isolated, so the asking conversation receives only the answer, never the transcript. Not for resuming work (that's <code>/workon</code>).</td></tr>
+    </table>
+  </div>
+
+  <h2>Layout on disk</h2>
+<pre><code>&lt;repo&gt;/
+├── HANDOFF.md                    # single-mode handoff, or multi-mode index (one line per workstream)
+├── HANDOFF-&lt;slug&gt;.md             # per-workstream handoff (multi mode)
+├── BOARD-&lt;slug&gt;.md               # phased-delivery board (Phases/Active/Backlog/New Ideas/Inbox)
+├── docs/
+│   ├── ledger.md                 # append-only: what landed and why (written by /land)
+│   └── &lt;slug&gt;-runbook.md         # operational reference (deploy rules, IDs, standing rules)
+├── _handoff-archive/             # archived workstream handoffs
+└── .claude/
+    ├── flow.yaml                 # parallel_mode · test_command · default_branch · known_writers
+    ├── branch-state/
+    │   └── &lt;branch&gt;.yaml         # per-branch contract — lives ON its branch; deleted at landing
+    ├── session-reports/
+    │   └── &lt;branch&gt;.md           # sibling-session delta — folded + deleted at landing
+    ├── flow-unlock/               # per-session unlock passes — NEVER committed; /land-only now
+    │   └── &lt;session_id&gt;.json
+    └── worktrees/
+        └── &lt;name&gt;/               # the worktrees — gitignore `.claude/worktrees/`</code></pre>
+  <div class="col">
+    <p>And in <code>~/.claude/</code>: <code>commands/</code> (the nine command files), <code>hooks/flow-*.js</code> (+ <code>flow-lib.js</code>), <code>agents/session-historian.md</code>, <code>scripts/flow-transcript-sweep.mjs</code>, <code>scripts/flow-worktree-quarantine.mjs</code>, <code>scripts/flow-drop.mjs</code>, <code>scripts/flow-inbox-migrate.mjs</code>, <code>templates/</code> (handoff, board, flow.yaml), <code>tests/flow/run-tests.mjs</code>, and both docs. Also <code>flow-drops/</code> — the drop queue itself, gitignored and machine-local.</p>
+    <p><b>Visibility rule (where files are while work is in flight):</b> the tree above is the <em>default branch's</em> view. Everything a workstream's sessions commit — its handoff, board, specs, code, its branch-state file — exists only on that <code>worktree-&lt;slug&gt;-vN</code> branch until landing: readable in its worktree and on <code>origin/&lt;branch&gt;</code>, absent from the main checkout by construction. <code>/land</code>'s squash-merge is the one mechanism that makes those files appear in the main checkout. Corollaries: a brand-new workstream's handoff is created by its <b>first wrap</b>, not by <code>/workon</code>; a conversation that ends without any wrap leaves <b>no handoff at all</b> — just checkpoints plus a branch-state with <code>sealed: false</code>, which is how <code>/workon</code>'s re-enter path detects and announces the unwrapped takeover.</p>
+  </div>
+
+  <h2>The branch-state contract</h2>
+<pre><code>branch: worktree-billing-rework-v3
+workstream: billing-rework          # sibling detection keys on this
+conversation: billing-rework-v3
+status: in-progress                 # in-progress | ready
+sealed: false                       # true after a wrap; guard denies edits from that session
+session_id: &lt;uuid&gt;
+note: "what's left, one line"       # the "status note"; or a land-blocked reason</code></pre>
+  <div class="col">
+    <p>Filename: the branch name with <code>/</code> and <code>\</code> replaced by <code>__</code>, plus <code>.yaml</code>. Reading order everywhere: (1) the branch's own worktree, (2) <code>git show &lt;branch&gt;:…</code>, (3) <code>git show origin/&lt;branch&gt;:…</code> for origin-only branches — and <b>never</b> a glob of the main checkout's <code>branch-state/</code> directory, which is empty by construction.</p>
+  </div>
+
+  <h2>flow.yaml</h2>
+<pre><code>parallel_mode: false   # true = main checkout locked; auto-armed by /workon at 2nd concurrent worktree
+test_command: ""       # the single source of truth for the suite; wrap verdict + land gate
+default_branch: main   # informational; commands resolve the real one via origin/HEAD
+known_writers: []      # every legitimate external automation that pushes to this repo</code></pre>
+  <div class="col">
+    <p>Arming takes effect the moment the file is written (the guard reads the file, not git) — <code>flow.yaml</code> is one of the six coordination files carved out of the lock (see below), so the write itself needs no unlock flag even though it just locked the repo. It is deliberately left <b>dirty</b> afterward: <code>/land</code>'s Step-0 pre-check commits it at the next landing, same as any other coordination file (this replaces the earlier immediate-commit-via-unlock-flag dance, which itself had replaced a defer-the-commit model that left <code>flow.yaml</code> dirty in main and aborted the next <code>/land</code>'s squash-merge; both retired). <code>known_writers</code> exists so the answer to "who else pushes here?" is a documented list, not an investigation.</p>
+    <p><b>Test-gate capture:</b> <code>test_command</code> is populated by <code>/wrap</code>, not by the human. When <code>/wrap</code> finds it empty in a repo that appears testable (test files, a <code>package.json</code> test script, or tests written this session), it determines the suite command, verifies it runs, records it in <code>flow.yaml</code> (creating the file from the template if absent) and announces the change — asking only when more than one plausible command exists. A testable repo is never left with a silently empty gate; if one somehow is, <code>/land</code>'s preview surfaces it as "no test gate".</p>
+  </div>
+
+  <h2>Coordination files: exempt from the lock</h2>
+  <div class="col">
+    <p>Six path shapes are carved out of the main-checkout lock entirely, for <code>Edit</code>/<code>Write</code>, from <b>any</b> session — including one working an unrelated repo:</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <tr><th>Path</th><th>Shape</th></tr>
+      <tr><td><code>BOARD-*.md</code>, <code>HANDOFF-*.md</code>, <code>HANDOFF.md</code></td><td>repo root only</td></tr>
+      <tr><td><code>.claude/flow.yaml</code></td><td>exact</td></tr>
+      <tr><td><code>docs/*-runbook.md</code></td><td>basename ends <code>-runbook.md</code>, directly in <code>docs/</code></td></tr>
+      <tr><td><code>_handoff-archive/*.md</code></td><td>files directly in that directory, never a subdirectory</td></tr>
+    </table>
+  </div>
+  <div class="col">
+    <p>The first four make the board's Inbox genuinely writable. The last two are what a <b>main-checkout wrap writes by contract</b> — MIGRATE MODE snapshots the old handoff into <code>_handoff-archive/</code> and moves reference blocks into <code>docs/&lt;slug&gt;-runbook.md</code>. (A seventh shape, <code>docs/decisions.md</code>, sat on this list until 2026-09-02 as an exempt path that nothing wrote; the record-layer consolidation retired the file itself, so the exemption went with it and the guard now gates that path like any other doc.) See the hooks table above for the exact mechanism — an explicit-allow carve-out in <code>flow-main-guard.js</code>, the same shape as the unlock-flag carve-out.</p>
+    <p><b>Who can actually reach a board — the isolation is tool-shaped, not path-shaped.</b> The carve-out above settles the <b>guard's</b> layer only. The harness's own worktree isolation sits in front of it and is not ours to lift. Measured by probe on 2026-09-02 from an unsealed worktree — six writes, three targets, two tools:</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <tr><th>Target</th><th><code>Write</code>/<code>Edit</code></th><th>Bash redirect</th></tr>
+      <tr><td>No git repo at all</td><td>allowed</td><td>allowed</td></tr>
+      <tr><td>A <b>different</b> repo's main checkout</td><td><b>allowed — unguarded</b></td><td>allowed</td></tr>
+      <tr><td><b>Its own</b> repo's main checkout</td><td><b>refused</b></td><td>allowed</td></tr>
+    </table>
+  </div>
+  <div class="col">
+    <p>Refusal text, verbatim: <em>"This session is isolated in the worktree …. Edit the worktree copy of this file instead of the shared-checkout path."</em> So the isolation guards <code>Write</code>/<code>Edit</code> against a session's <b>own</b> repo's main checkout, and nothing else. Two consequences: a path outside the target repo is reachable with the supported <code>Write</code> tool — which is exactly what the drop queue below uses — and the Bash column is a gap we deliberately do <b>not</b> exploit (undocumented, can close in any release, and routing around a boundary the harness is enforcing is not something this system institutionalises).</p>
+  </div>
+  <div class="col">
+    <p><b>The middle row is the dangerous one, because it is not an error.</b> The write succeeds against a copy pinned at the branch point — measured at 41 lines against main's 54 for the same board — and arrives only when that branch lands, appending to the Inbox at end-of-file, which is exactly where every other session appends. A real three-way merge means nothing is lost, but the cost of a hand-over note becomes a merge conflict, deferred.</p>
+    <p>So the guard emits an <b>explicit allow with a warning</b> when a worktree session edits a <code>BOARD-&lt;slug&gt;.md</code> at the repo root whose slug is not that worktree's own <code>workstream</code>: it names both workstreams, says the edit is going to this branch's stale copy, instructs the session not to report it as delivered, and hands back a ready-to-run <code>flow-drop.mjs add</code> invocation. Advisory only — wrapped in try/catch and falling through to the normal allow on any failure, because a coordination warning must never be able to block a worktree write. The session's own board is deliberately silent (a warning on every board edit trains the reader to ignore it), as is a nested <code>docs/BOARD-*.md</code>.</p>
+    <p><b>The supported route is the drop queue.</b> <code>~/.claude/scripts/flow-drop.mjs add --repo &lt;path&gt; --workstream &lt;slug&gt; --from &lt;slug&gt; --body-file &lt;file&gt;</code> writes <b>one file per drop</b> under <code>~/.claude/flow-drops/&lt;repo&gt;/&lt;slug&gt;/</code> — outside every target repo, so the supported <code>Write</code> tool reaches it from anywhere, and two sessions dropping at once cannot collide. Bodies arrive via a file, never argv (non-ASCII in argv crashes node on Windows), and are free text: a body that says "urgent, belongs in Phase F" is honoured by the existing triage, so there is deliberately <b>no</b> structured priority or target-phase field.</p>
+    <p><code>/workon</code>'s <b>Step 2b</b> drains the queue into the board's Inbox — appending at the end of the <code>## Inbox</code> section (not EOF; a board may carry later sections), attributing each entry to its source workstream, verifying the board write on disk before deleting any drop, and skipping a drop whose <code>to_repo</code> does not match. Each folded entry carries a trailing <code>&lt;!-- drop:&lt;id&gt; --&gt;</code> marker, which makes an interrupted drain safe to re-run. <b>Step 2b runs in the main checkout, before <code>EnterWorktree</code></b> — after entry the drain would hit the very wall the queue exists to get around, so the ordering is load-bearing and says so inline. A workstream with no board yet is a no-op and its drops wait, which is correct under the plan-then-board rule. <code>/repo-health</code> reports what is still pending, so a workstream nobody reopens never holds notes invisibly.</p>
+    <p><b>Deliberately NOT built:</b> a carve-out that lets a <em>sealed</em> session write coordination files (it would only restore access to the same stale worktree copy — the wrong artefact); any use of the Bash gap in the table above; and <code>SendMessage</code> as the hand-over mechanism, since it needs the target session live, leaves no durable record, and Inbox notes are non-urgent by definition. Relocating the Inbox to its own file inside the repo was also rejected: the block is per-checkout, not per-file, so an in-repo inbox is refused exactly as the board is.</p>
+    <p>The Inbox heading itself now states the rule it enables, verbatim:</p>
+  </div>
+<pre><code>## Inbox
+_New ideas, backlog items and topics for discussion. Anything added below is triaged at this workstream's next /workon — moved to Backlog or New Ideas as appropriate, or slotted into the current phase if urgent. Anyone may add here by hand. A session working in a worktree cannot write this file; it drops a note via `~/.claude/scripts/flow-drop.mjs` instead, which /workon folds in here before triage._</code></pre>
+  <div class="col">
+    <p>The wording names no individual (anyone may write), does not call entries one-liners (they may be paragraphs), states what the Inbox is for, states how triage disposes of it, and names the one route a worktree session must use — explicit at the point it is read. An earlier version of this rewording reached only <em>new</em> boards created from the template, leaving four boards on two older variants for months; <code>scripts/flow-inbox-migrate.mjs &lt;repo&gt;…</code> now exists so the rewrite is repeatable and idempotent, rewriting only an italic blurb and reporting <code>UNRECOGNISED</code> rather than guessing at anything else.</p>
+  </div>
+  <div class="col">
+    <p><b>Commits are not part of the carve-out.</b> The guard still denies git verbs on a locked main, so these files sit dirty on disk between writes; <code>/land</code>'s Step-0 pre-check auto-commits exactly this list before doing anything else — the two sets are kept identical on purpose, since anything writable-but-uncommittable would sit dirty forever and abort the next squash. Practical consequence: a cross-repo Inbox drop reaches GitHub only at that repo's <em>next</em> land — but <code>/workon</code> always reads straight off disk, so triage is never delayed by that gap.</p>
+    <p><code>CLAUDE.md</code>, memory files and other context files are <b>deliberately not</b> carved out — they steer every session that reads them, which makes them closer to source than to coordination; writes to them stay gated like any other file. Note what that means for a <code>/wrap-end</code> run in a <b>locked</b> main checkout: its "capture session learnings" step cannot write <code>~/.claude/memory/*.md</code> or a project <code>CLAUDE.md</code> there. The command now says so plainly and tells Steve the change belongs in a worktree (or his own editor, which the guard has never applied to) rather than pretending a carve-out covers it.</p>
+    <p><b>Say it plainly, because it surprises people:</b> this guard was never a lock on Steve. It is a <code>PreToolUse</code> hook on Claude's own tool calls (<code>Edit</code>/<code>Write</code>/<code>NotebookEdit</code>/mutating Bash). Steve's own edits — in VS Code, in any editor, to any file, coordination or otherwise — were always free; nothing in Session Flow has ever stopped him typing into a file directly.</p>
+  </div>
+
+  <h2>Worktree quarantine before every removal</h2>
+  <div class="col">
+    <p><code>scripts/flow-worktree-quarantine.mjs &lt;worktree-path&gt;</code> runs immediately before a worktree is removed, on all three removal paths (<code>/land</code>'s per-branch cleanup, <code>/wrap-end</code>, <code>/quickfix</code>). It copies the worktree's <b>gitignored</b> files (<code>git ls-files --others --ignored --exclude-standard</code>) to <code>&lt;FLOW_ARCHIVE_DIR&gt;\_quarantine\&lt;repo&gt;\&lt;worktree&gt;-&lt;date&gt;\</code>, skipping a fixed list (<code>node_modules</code>, <code>dist</code>, <code>.venv</code>, <code>__pycache__</code>, <code>target</code>, any nested <code>.claude/worktrees</code>). Silent when nothing is preserved; one report line otherwise; fails soft on locked files (a Windows-specific risk — a just-closed session can still hold a handle).</p>
+    <p><b>Why this exists:</b> <code>git worktree remove</code> silently deletes gitignored files with no confirmation and no <code>--force</code> needed — git has treated ignored files as disposable since 2.17 (documented only in the introducing commit, never the man page; there is no preserve flag). A worktree landing destroyed a gitignored local secrets file, taking live API tokens with it, because the file was gitignored rather than merely untracked. <code>wrap-end.md</code>'s previous <b>unconditional <code>--force</code></b> on worktree removal made this worse (it overrides even git's <em>untracked-file</em> protection) and is deleted along with this fix.</p>
+    <p><b>The rule that generalises, worth stating on its own: a worktree must never hold the only copy of anything.</b> Concretely:</p>
+    <ul>
+      <li><b>Secrets</b> (API tokens, PATs, passwords) belong in <b>environment variables</b>, with <b>LastPass as the source of truth</b> — never a loose file inside a worktree, gitignored or not.</li>
+      <li><b>Irreplaceable non-secret data</b> (local fixtures, a local database, anything that took real effort to assemble and isn't derivable from the repo) must live <b>outside</b> the worktree.</li>
+      <li><b>Regenerable state</b> (<code>node_modules</code>, <code>dist</code>, build caches) is fine to lose — that's exactly what the skip-list above exists to leave behind.</li>
+    </ul>
+    <p>The reverse need — copying a gitignored file <b>into</b> a freshly created worktree (e.g. a local <code>.env</code> cache every session needs) — is served by an optional <code>.worktreeinclude</code> file in the repo, not by the quarantine script.</p>
+  </div>
+
+  <h2>Keeping a branch in sync with main, outside landing</h2>
+  <div class="col">
+    <p>If a worktree's branch ever needs today's main folded in mid-work — rare; most sessions never need this — do it with a plain <code>git merge &lt;default-branch&gt;</code>, never a rebase. Squash-landing already discards branch history at the end, so a merge bubble mid-work costs nothing, and merging can never leave a branch rewritten with no way back if something goes wrong.</p>
+    <p><code>/land</code>'s own rebase (used to fast-forward a branch cleanly before squashing) is the one place rebasing still happens, and it is built to fail safe: the pre-rebase ref is recorded before the rebase runs, and if the land aborts partway through, the branch is either reset back to that ref or pushed with <code>git push --force-with-lease origin &lt;branch&gt;</code> before the procedure stops — never left rewritten and unpushed. <b>What actually permits that push, stated accurately:</b> there is no worktree-scoped permission rule and there never was one. <code>settings.json</code> carries a <b>broad, pre-existing</b> <code>Bash(git push --force-with-lease:*)</code> rule that does not look at the branch name at all, so a force-with-lease push to <b>any</b> branch — the default branch included — clears the settings layer. The design intent (worktree branches only) is therefore a <b>discipline written into <code>land.md</code>, not a mechanism</b>: what makes it deterministic for the default branch is the GitHub ruleset below, which blocks force pushes server-side and is active on the flow repos. The settings layer alone would not stop you; the ruleset does.</p>
+  </div>
+
+  <h2>Board creation: born from the plan, not from <code>/workon</code></h2>
+  <div class="col">
+    <p><code>BOARD-&lt;slug&gt;.md</code> is no longer created automatically at a workstream's first <code>/workon</code>. Steve's ruling: phases and journey steps can only be chosen meaningfully once a plan exists — an empty shell board at first entry is premature and just sits there unfilled.</p>
+    <p><b>Trigger:</b> when a plan is approved for work in a flow repo (<code>ExitPlanMode</code>, or a <code>writing-plans</code> plan being written), the board is created <b>then</b>, in the worktree, with:</p>
+    <ul>
+      <li><b>Phases derived from the plan's own structure</b> — each phase ends at one of the plan's own milestones/checkpoints, not an arbitrary split.</li>
+      <li><b>Journey steps</b> as the human-readable division: the logical sequence of events the product/workstream goes through.</li>
+    </ul>
+    <p>At the same moment, in the same worktree: the workstream's row is added to <code>HANDOFF.md</code>'s index, and — where the repo's own <code>CLAUDE.md</code> carries a workstream map — its line there too. All of it lands through the normal <code>/land</code> cycle; no carve-out is needed because it happens inside a worktree, not on a locked main. The standing rule this satisfies: <em>the process, not Steve, keeps the handoff index and CLAUDE.md aware of every workstream.</em></p>
+    <p>For a plan-less workstream (a question that grew into real work with no formal plan written), the wrap-time "no board is tracking this" nudge is the fallback — it now offers plan-then-board rather than a bare <code>/dev-project setup</code> pointer, and only mentions the Systems Dashboard where that integration actually applies.</p>
+    <p><b>The trigger and the board's format are deliberately separable.</b> This decision fixes only <em>when</em> a board is created; the template itself (currently designed for a human reader) may still be revised later — an AI-focused variant with issue lists and blockers has been discussed — without touching this trigger.</p>
+  </div>
+
+  <h2>GitHub Rulesets — the server-side backstop</h2>
+  <div class="col">
+    <p>Client-side protection (the guard hook, settings permission rules) is <b>advisory</b>: any of it can be bypassed locally (<code>--no-verify</code>, editing <code>settings.json</code>, a classifier quirk), and a distributed plugin cannot ship permission rules or hook registrations into a client's <code>settings.json</code> at all — only the guard/hooks/commands/quarantine script travel with the plugin. A <b>GitHub Ruleset</b> on the repo's default branch is the deterministic backstop: it is enforced server-side, so it holds even if every client-side layer is bypassed or absent.</p>
+    <p><b>Scope, and why it must be exactly this narrow:</b> default branch only, two rules — block force pushes (<code>non_fast_forward</code>) and restrict deletions (<code>deletion</code>). Nothing else: no PR requirement, direct pushes stay allowed, so <code>/land</code>'s own <code>git push</code> passes untouched. <b>The default-branch scoping is load-bearing, not a preference:</b> <code>/land</code> deletes <code>worktree-*</code> branches on origin as routine cleanup, and the sync escape hatch above force-pushes them with <code>--force-with-lease</code> — a repo-wide ruleset would block both of those legitimate operations.</p>
+    <p><b>Plan requirement (checked, not assumed):</b> on GitHub Free, rulesets on a <b>private</b> repo can be <em>created</em> but are <b>not enforced</b> — the repo's Settings → Rules page shows an explicit "not enforced" upgrade banner. GitHub Pro removes this restriction for a personal account's private repos (~£4/month, covers all of them); the flow repos run on Pro, so their rulesets are enforced.</p>
+    <p><b>Enrolment call</b> — identical for every flow repo:</p>
+  </div>
+<pre><code>gh api repos/drsteveday/aisys/rulesets -X POST --input - &lt;&lt;'JSON'
+{ "name": "session-flow main protection", "target": "branch", "enforcement": "active",
+  "conditions": { "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] } },
+  "rules": [ { "type": "non_fast_forward" }, { "type": "deletion" } ] }
+JSON</code></pre>
+  <div class="col">
+    <p>(Repeat per repo, substituting the <code>repos/&lt;owner&gt;/&lt;repo&gt;</code> path. The heredoc has no backslashes in it, so a plain Bash call is safe here — if a hook objects anyway, write the same JSON to a file and pass <code>--input &lt;file&gt;</code> instead.)</p>
+    <p><b>Verification is the enforcement banner, not the API response.</b> After the Pro upgrade: <code>gh api repos/&lt;owner&gt;/&lt;repo&gt;/rulesets</code> should show <code>"enforcement":"active"</code>, and the repo's Settings → Rules page must show <b>no</b> "not enforced" banner — that banner is ground truth. A live negative test confirms it end-to-end: from a scratch clone, <code>git push --force origin main</code> on a no-op amend must be <b>rejected by the server</b>.</p>
+    <p><b>Known-writers check (once per enrolled repo):</b> confirm none of the repo's documented external writers (VPS crons, the KB Sync Bot, etc. — see <code>known_writers</code> in <code>flow.yaml</code>) force-push or delete the default branch; an ordinary push still passes the ruleset untouched.</p>
+    <p><b>If enforcement still fails after the Pro upgrade</b>, the client-side guard remains the only protection, exactly as it was before this decision — nothing regresses, the ruleset is purely additive.</p>
+    <p><b>Client packaging:</b> because plugins cannot ship permission rules or repo settings, <code>aisys-setup</code> gains two one-time guided steps for a new install: (1) paste the flow permission rules (now just the flag-dir pair plus the broad, pre-existing force-with-lease rule) into the client's <code>settings.json</code>, and (2) run the enrolment call above on their repo — or note the plan limitation if they're not on a plan that enforces it.</p>
+  </div>
+
+  <h2>The handoff v2 contract</h2>
+  <div class="col">
+    <p>Header: slug · <code>**Flow:** v2</code> (the migration marker — absence triggers MIGRATE MODE) · latest conversation · last touched (local wall-clock with time) · one-phrase status · working environment · anchor lines carried verbatim. Exactly one On-resume block naming <code>&lt;slug&gt;-v&lt;N+1&gt;</code>. Six core sections (Session focus / What shipped / What's pending / Decisions / Working tree state / Open questions). <code>## Links</code> by path, never copied content. <code>## Recent sessions</code> capped at three lines. Claims marked ✅ verified (how) / ⚠ believed. Hygiene on every wrap: stale-fact sweep in place, rolling compression, promote-then-delete durable facts, current-first ordering, soft budget ~200–400 lines.</p>
+  </div>
+
+  <h2>Ledger entry format</h2>
+<pre><code>## &lt;YYYY-MM-DD&gt; — &lt;slug&gt; — &lt;headline&gt;
+meta: branch &lt;branch&gt; · workstream &lt;slug&gt; · conversation &lt;slug&gt;-vN · squash subject "&lt;first line&gt;"
+&lt;paragraph&gt;
+Decisions: (1) &lt;chose X over Y because Z&gt;. (2) &lt;…&gt;.
+Overturned: (1) &lt;what was held before&gt; → &lt;what replaced it&gt; — &lt;why it changed&gt;. (2) &lt;…&gt;.</code></pre>
+  <div class="col">
+    <p>The <code>Decisions:</code> and <code>Overturned:</code> lines carry the session's rationale and its reversals, lifted from the handoff's <code>## Decisions / conventions established this session</code> section and compressed to one clause each. They inherit workstream, date and conversation from the <code>meta:</code> line above, so both are attributed by construction rather than by hand. Each is omitted entirely when there is nothing to record — never written as "none".</p>
+    <p>An entry written by an <b>unlocked main-checkout wrap</b> takes the same shape, with the two branch-and-squash fields naming their own absence: <code>meta: branch (none — main checkout) · workstream &lt;slug&gt; · conversation &lt;slug&gt;-vN · squash subject "(no squash — direct)"</code>. Nothing else differs.</p>
+    <p>The paragraph stays full detail whether or not either line is present: it is what a reader sees before deciding whether to open the conversation named in the <code>meta:</code> line, so it carries verified facts, IDs and pointers, not a restatement of the squash subject. The <code>Overturned:</code> content is captured earlier than the entry itself — by <code>/wrap</code>'s stale-fact sweep, at the moment it corrects a stale claim in the handoff, because that correction is what destroys the prior claim. In the handoff section that holds it, the <code>Overturned:</code> sub-line <b>accumulates</b> where the decisions above it are replaced: every wrap carries forward the items no ledger entry has lifted yet and appends its own, so a branch spanning several conversations delivers all of its reversals rather than the last conversation's only. Lifting it onto an entry is what clears it, and a section holding one is never overwritten with <code>*N/A this session.*</code>.</p>
+    <p>No commit hash, deliberately: writing the hash into its own commit amends the commit (the hash changes); the branch tip dies with the branch. The meta line is a greppable identity — find the landing with <code>git log --grep "&lt;squash subject&gt;"</code>.</p>
+  </div>
+
+  <h2>Known limitations</h2>
+  <div class="col">
+    <ul>
+      <li>Auto-arming covers only <code>/workon</code>-created worktrees — not agent-dispatch worktrees, bare <code>git worktree add</code>, or <code>/quickfix</code>/<code>/land</code> temp worktrees.</li>
+      <li>The guard's cwd-based repo resolution (quirks above).</li>
+      <li><code>flow-context-nudge</code> infers the context window rather than being told it — set <code>FLOW_CONTEXT_LIMIT</code> if a session's window differs from what its project's recent transcripts suggest.</li>
+      <li>Single-operator design: nothing coordinates two humans landing simultaneously in one repo.</li>
+            <li>A repo that has not been enrolled in the GitHub Ruleset has only the client-side guard, which is advisory — enrol each new repo with the call above.</li>
+    </ul>
+    <p class="footnote">Keeping this current: any change to commands, hooks or templates must update both documentation files (<code>docs/session-flow.md</code> + <code>docs/session-flow-technical.md</code>) — the coverage test in <code>tests/flow/run-tests.mjs</code> enforces the names; the prose is on you. And any edit to those files must rebuild and republish this page in the same session — it does not update itself.</p>
+  </div>
+</section>
+</main>
+
+<script>
+(function(){
+  var tabs = { plain: document.getElementById('tab-plain'), tech: document.getElementById('tab-tech') };
+  var panels = { plain: document.getElementById('panel-plain'), tech: document.getElementById('panel-tech') };
+  function select(which){
+    for (var k in tabs){
+      var on = (k === which);
+      tabs[k].setAttribute('aria-selected', on ? 'true' : 'false');
+      panels[k].hidden = !on;
+    }
+    try { localStorage.setItem('sessionflow-tab', which); } catch(e){}
+    window.scrollTo(0,0);
+  }
+  tabs.plain.addEventListener('click', function(){ select('plain'); });
+  tabs.tech.addEventListener('click', function(){ select('tech'); });
+  var saved = null;
+  try { saved = localStorage.getItem('sessionflow-tab'); } catch(e){}
+  if (saved === 'tech') select('tech');
+})();
+</script>
+
+
+</body>
+</html>
