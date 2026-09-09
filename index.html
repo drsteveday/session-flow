@@ -97,7 +97,8 @@
   <div class="top-in">
     <a class="brand" href="#top">Session <span>Flow</span></a>
     <div class="tabs" role="tablist" aria-label="Documentation version">
-      <button id="tab-plain" role="tab" aria-selected="true" aria-controls="panel-plain">Plain English</button>
+      <button id="tab-summary" role="tab" aria-selected="true" aria-controls="panel-summary">Summary</button>
+      <button id="tab-plain" role="tab" aria-selected="false" aria-controls="panel-plain">Plain English</button>
       <button id="tab-tech" role="tab" aria-selected="false" aria-controls="panel-tech">Technical</button>
     </div>
   </div>
@@ -105,8 +106,67 @@
 
 <main id="top">
 
+<!-- ============================ SUMMARY ============================ -->
+<section id="panel-summary" role="tabpanel" aria-labelledby="tab-summary">
+  <style>
+    .twoline{font-family:var(--mono,ui-monospace,Consolas,monospace); font-size:1.35rem; font-weight:600; margin:.2rem 0}
+    .headline{background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:8px; padding:1.3rem 1.5rem; margin:1.6rem 0; max-width:46rem}
+    .headline p{margin:.5rem 0}
+    .headline p:first-child{margin-top:0}
+    .headline p:last-child{margin-bottom:0}
+    .headline .only{font-weight:600; color:var(--ink)}
+    .closer{font-size:1.05rem; margin:2.4rem 0 0; max-width:46rem}
+  </style>
+
+  <div class="col">
+    <div class="kicker">Summary</div>
+    <h1>Session Flow</h1>
+    <p class="lede">I run a business and I build its software with Claude. I am not a developer, and git came with the job rather than by choice.</p>
+
+    <div class="headline">
+      <p class="twoline"><code>/workon</code> to start. <code>/wrap</code> to stop.</p>
+      <p class="only">They are the only two I have to remember.</p>
+    </div>
+
+    <p>Everything else happens underneath. The work is committed after every exchange and pushed to a private copy online. Notes are written for the next session, the plan is kept up to date, merges are managed for me, and every conversation is kept so I can ask it questions later.</p>
+    <p>I am told in plain English what happened, what needs to happen next, and exactly what to copy and paste.</p>
+  </div>
+
+  <h2>In a normal run of work</h2>
+  <div class="col"><p class="refnote">The order I meet them in.</p></div>
+  <div class="tablewrap">
+    <table>
+      <tr><th>What used to happen</th><th>The part that does it</th><th>What happens now</th></tr>
+      <tr><td>New work never got set up properly, and I lost track of where I was up to</td><td><code>/workon</code>, starting a new workstream</td><td>Sets the workstream up in its own worktree, a private copy of the project</td></tr>
+      <tr><td>I forgot to commit my work</td><td>the checkpoint, one of six background programs</td><td>Committed after every exchange, and pushed to a private copy online as it goes</td></tr>
+      <tr><td>One workstream needed a task adding to another's list, so I copy-pasted by hand</td><td>drop</td><td>The note is filed and delivered to the right Board automatically</td></tr>
+      <tr><td>A conversation filled up mid-job, and stopping properly would merge work that was not finished</td><td><code>/wrap-lite</code></td><td>Hop to a fresh conversation, nothing merged, the same job carries on</td></tr>
+      <tr><td>One task rolled into the next with no clear end</td><td><code>/wrap</code>, which writes the Handoff and updates the Board</td><td>Milestones are logged, the Handoff is written for next time and the Board is brought up to date</td></tr>
+      <tr><td>I came back weeks later with no idea where I was, and finished work sat unmerged because I forgot it was there</td><td><code>/workon</code>, rejoining an existing workstream</td><td>Picks up exactly where I left off, and offers to merge anything still outstanding</td></tr>
+      <tr><td>I was left to work out what needed merging and when, which caused conflicts and lost work</td><td><code>/land</code>, offered by <code>/workon</code>, so I never call it myself</td><td>My merges are managed for me, tested before anything goes in, and the commits arrive organised</td></tr>
+    </table>
+  </div>
+
+  <h2>Across all of it</h2>
+  <div class="col"><p class="refnote">Not part of the run. Always there.</p></div>
+  <div class="tablewrap">
+    <table>
+      <tr><th>What used to happen</th><th>The part that does it</th><th>What happens now</th></tr>
+      <tr><td>I was forced to work on one thing at a time, or the work collided</td><td>worktrees, a private copy of the project for each workstream in flight</td><td>Five workstreams running at once on one project, each merged back cleanly</td></tr>
+      <tr><td>I could not keep track of all the workstreams across all the projects</td><td>the dashboard</td><td>One place showing every one of them</td></tr>
+      <tr><td>Git errors I could not read</td><td>the commands, nine of them, three worth learning</td><td>Plain English, and the exact thing to copy and paste to carry on</td></tr>
+      <tr><td>A conversation ended and the reasoning went with it</td><td>the archive and <code>/recall</code></td><td>Every conversation is kept, and I can ask a finished one what we decided</td></tr>
+    </table>
+  </div>
+
+  <div class="col">
+    <p class="closer">I start something new, or come back to it three weeks later, the same way.</p>
+    <p class="footnote">The full account of how this came about is on the <b>Plain English</b> tab. Exact procedures, file contracts and known limitations are on the <b>Technical</b> tab.</p>
+  </div>
+</section>
+
 <!-- ============================ PLAIN ENGLISH ============================ -->
-<section id="panel-plain" role="tabpanel" aria-labelledby="tab-plain">
+<section id="panel-plain" role="tabpanel" aria-labelledby="tab-plain" hidden>
   <style>
     .scene{border-left:3px solid var(--accent); padding:.15rem 0 .15rem 1.25rem; margin:1.5rem 0; max-width:46rem}
     .scene p{margin:.55rem 0}
@@ -125,184 +185,206 @@
     .deflist b{color:var(--accent-ink)}
     .nextstep{background:var(--chip-bg); border-radius:8px; padding:.9rem 1.3rem; margin:1.8rem 0 0; max-width:46rem}
     .nextstep p{margin:0}
+    .problem{margin:1.4rem 0; max-width:46rem}
+    .problem p{margin:.4rem 0}
   </style>
 
   <div class="col">
-    <div class="kicker">User guide</div>
+    <div class="kicker">The full account</div>
     <h1>Session Flow</h1>
-    <p class="lede"><strong>A developer-grade workspace for people who are not developers.</strong> Your work saves itself, your history is kept and searchable, several threads of work run side by side without colliding — and nothing reaches the real version of your project until you say yes. You never have to learn git.</p>
+    <p class="lede">My own account of what I built, why I built it, and how it all fits together. It is not a pitch. It is a description of how I work now, and of the run of problems that got me here.</p>
   </div>
 
-  <h2>1. Where this came from — four ways of working with AI</h2>
+  <h2>1. How I started</h2>
   <div class="col">
-    <div class="scene">
-      <p>You are three days into building something with Claude. It is going well. Then the conversation fills up, the model compresses what it remembers, and it starts contradicting decisions you made on day one. You open a fresh conversation — and the new one knows nothing. The reason you chose your approach is in the old one somewhere, and you cannot find it.</p>
-      <p>Or this. You were told to commit your work, so you did. Sometimes. You were told to push it, so you did. Sometimes. Nobody told you when to merge, or what merging even implies. Two pieces of work land in the wrong order and now there is a "conflict" — a word for a mess you did not create and cannot read.</p>
-    </div>
-    <p>Session Flow exists because of those two afternoons. Here is the ground it covers, in the order most people travel it.</p>
+    <p>I am not a developer. I run a business, and I build the software that business needs using Claude.</p>
+    <p>I started in the Claude desktop app. Then I was advised that the command line version was a better way to work on anything complex, so I moved across. <b>Git</b> came with that move. Git is the version-control system professional software teams use: it keeps every past version of a project so any change can be undone and any old state recovered. I did not choose it, and I had no idea what it was or how to use it.</p>
+    <p>A lot of people are now in that position. Business owners building real software, effectively running a development team, without any of the training that normally comes first. Accidental developers.</p>
+    <p>The work moves fast. I plan something with Claude, hand it over, and a few hours later it has built what would have taken a developer days or weeks. One session, one person, no team.</p>
+    <p>That speed breaks the way software work is normally organised. Pull requests, sign-offs, someone reviewing each small change: all of it assumes trained people working at human speed, and none of it fits what I actually do.</p>
+    <p>The tools underneath were not built for it either. Git punishes forgetting. It assumes habits I never had a reason to learn.</p>
+    <p>And I am a bad candidate for habits of that kind. I have an ADHD brain and I am dyslexic, so remembering where I had got to, and reading back through long written plans, were never going to be my strong points.</p>
     <div class="define">
-      <p><span class="term">A few definitions, in case you want to know what the machinery is doing.</span></p>
+      <p><span class="term">A few definitions, so the rest of this makes sense.</span></p>
       <ul class="deflist">
-        <li><b>Git</b> — the version-control system professional software teams use.</li>
-        <li><b>Commit</b> — save a snapshot of your work.</li>
-        <li><b>Push</b> — send those snapshots to the online backup copy.</li>
-        <li><b>Merge</b> — combine one line of work into another.</li>
-        <li><b>Conflict</b> — when git sees changes it cannot decide between.</li>
+        <li><b>Git</b>: the version-control system professional software teams use.</li>
+        <li><b>Commit</b>: save a snapshot of the work.</li>
+        <li><b>Push</b>: send those snapshots to the online backup copy.</li>
+        <li><b>Merge</b>: combine one line of work into another.</li>
+        <li><b>Conflict</b>: when git sees changes it cannot decide between.</li>
       </ul>
-      <p>You will meet these words again below. You will never have to type — or learn — any of them.</p>
+      <p>These words come up throughout. I never have to type any of them, or learn them.</p>
     </div>
+  </div>
 
+  <h2>2. What I tried</h2>
+  <div class="col">
     <div class="stage">
-      <span class="eyebrow">The "No" way</span>
-      <h3>Just talk to the chatbot</h3>
-      <p>You work in the conversation window and nowhere else. Nothing is version-controlled. Nothing is backed up beyond whatever the app happens to keep. And the model knows only what the current conversation holds — when that fills, it <b>compacts</b> (summarises its own history to make room) and detail goes.</p>
-      <p>Close the conversation and the <em>reasoning</em> goes with it. You keep the files. You lose the story of why they look like that.</p>
+      <span class="eyebrow">First</span>
+      <h3>Working in sessions, and making them as long as I could</h3>
+      <p>A <b>session</b> is one working conversation with Claude, from opening it to closing it down. The longer a session ran, the worse it got. Every conversation has a <b>context</b>, meaning everything the model can currently see, and when that fills up the model <b>compacts</b>: it summarises its own history to make room, and detail goes. I would be three days into something, and Claude would start contradicting decisions we had made on day one. Compact was hit and miss. Opening a fresh conversation was worse, because the new one knew nothing at all.</p>
     </div>
-
     <div class="stage">
-      <span class="eyebrow">The "Old" way</span>
-      <h3>Use git, like a developer</h3>
-      <p>Git is excellent at what it is for: every version kept, several people on the same files without overwriting each other, any change reversible.</p>
-      <p>It is also complex, unforgiving, and built by and for people who use it daily. It assumes habits — commit early, pull before you push, know which branch you are on — that a business owner building their own tools does not have. Steve, in the conversation that started this project:</p>
+      <span class="eyebrow">Then</span>
+      <h3>Keeping everything on my PC, with no backup</h3>
+      <p>Then I tried syncing the project folders to Google Drive, which fought with the way Claude writes files and gave me sync conflicts and half-written files.</p>
+    </div>
+    <div class="stage">
+      <span class="eyebrow">Then</span>
+      <h3>Git</h3>
+      <p>The projects had got big enough that I needed to track changes and roll back when something went wrong, and git is what does that. It also gave me an online backup copy on <b>GitHub</b>, the service that holds it.</p>
+      <p>Git is genuinely excellent at what it is for. Every version kept, several people able to work on the same files without overwriting each other, any change reversible. It is also complex, unforgiving, and built by and for people who use it every day. Here is what I said about it in the conversation that started this project:</p>
       <div class="quote">"I'm not an experienced developer, and Git pulls, pushes, and the rest still confuse me… You, as the AI with access to everything written about Git, are far better placed to handle it. We need to systemize the process rather than relying on memory or judgment."</div>
-      <p>The cost of not having those habits is not a warning message. It is lost work.</p>
-    </div>
-
-    <div class="stage">
-      <span class="eyebrow">The "New" way</span>
-      <h3>Automate git in the background</h3>
-      <p>The obvious fix: a background program that commits and pushes for you, so you never have to remember. Fine for one project, one person, one thing at a time.</p>
-      <p>It breaks the moment several threads of work run at once. An automation that saves everything it finds cannot tell finished work from work another live session is halfway through. An early attempt at exactly this swept up work belonging to running sessions and corrupted the project's official history.</p>
-      <p>Automation without ownership rules is not safety. It is a faster way to break something.</p>
-    </div>
-
-    <div class="stage">
-      <span class="eyebrow">The "Right" way</span>
-      <h3>Session Flow</h3>
-      <p>The full power of a professional developer's environment, and none of its ceremony.</p>
-      <p>You talk to Claude in plain English. Git happens underneath, correctly, without you learning it. Your work is saved and backed up after every exchange. Several threads run at once without colliding. Every conversation is kept, readable and searchable — so the reasoning survives, not just the files. And nothing reaches the official copy without your yes.</p>
-      <p>The standard being aimed at is Google Docs: you type, it is saved, it is safe, you can find it again, and you never once think about the mechanism.</p>
     </div>
   </div>
 
-  <h2>2. The core problem with standard AI sessions</h2>
+  <h2>3. The problems that came with git</h2>
   <div class="col">
-    <p>Three things go wrong without a system like this. Session Flow is built to solve exactly these.</p>
-    <ul>
-      <li><b>Closed conversations have no history.</b> When a session ends, its reasoning ends with it. The files remain; the record of what was tried, rejected and decided does not. Even where the raw transcript survives on disk, it is not something you can ask a question — finding one decision means remembering which conversation made it, then reading back through it.</li>
-      <li><b>Context gets squeezed into a few small files.</b> Your <b>context</b> is everything the model can currently see. The usual workaround for a fading conversation is a summary file. But a summary is a compression, and "why did we do it that way" is the first thing compression throws out — which is exactly what you need six weeks later.</li>
-      <li><b>You are forced to work one thing at a time.</b> Git and Claude Code, used plainly, want one line of work in one folder. Two conversations on the same project collide. Parallel work becomes a bottleneck instead of an advantage.</li>
-    </ul>
+    <p>The cost of not having a developer's habits is not a warning message. It is lost work. This is what actually went wrong, roughly in the order I met it.</p>
+    <div class="problem"><p><b>I forgot to commit and push.</b> Not always. Often enough. Work that was never committed is work git never knew about, and it does not come back.</p></div>
+    <div class="problem"><p><b>I started using worktrees for parallel work, and then forgot to merge.</b> A <b>worktree</b> is git's name for a private copy of the project in its own folder, so a second strand of work can run without disturbing the first. I needed them: the Aisys project has five subprojects running on the same main code at the same time. But finished work sat in those folders for weeks because nothing reminded me it was there.</p></div>
+    <div class="problem"><p><b>I could not keep track of the workstreams running across several projects.</b> A <b>workstream</b> is one strand of work inside a project, a feature or an area or a long-running effort. I had several per project and several projects, and no single place that showed me all of them.</p></div>
+    <div class="problem"><p><b>I could not remember where I was up to, or what was left.</b> Claude would write a multi-page plan. I did not understand it and I was not going to read it. So I would put a project down, pick it up three weeks later, and have no idea where I was.</p></div>
+    <div class="problem"><p><b>My notes got messy.</b> Once a project had several workstreams, they were all writing into the same document, and it turned into something I could not read.</p></div>
+    <div class="problem"><p><b>Stopping in the middle of a job merged work that was not finished.</b> If the conversation filled up mid-task, the only way to stop cleanly also brought half-built work into the real project.</p></div>
+    <div class="problem"><p><b>Closed conversations took their reasoning with them.</b> The files survived. The record of what was tried, rejected and decided did not. Even where a raw transcript was still on disk somewhere, it was not something I could ask a question. Finding one decision meant remembering which conversation made it, then reading back through the whole thing. Work in a worktree was worse: once it merged, the conversation behind it was effectively gone.</p></div>
+    <div class="problem"><p><b>Merges started going wrong.</b> Errors I could not read, conflicts I had not caused, work overwritten and work lost.</p></div>
+    <div class="problem"><p><b>Workstreams could not talk to each other.</b> Working in one, I would spot something that belonged on another one's list, and there was no way to put it there. So I copy-pasted by hand, or forgot.</p></div>
+    <div class="problem"><p><b>And underneath all of it, I was forced to work on one thing at a time.</b> Git and Claude Code, used plainly, want one line of work in one folder. Two conversations on the same project collide, so parallel work became a bottleneck instead of the advantage it should have been.</p></div>
   </div>
 
-  <h2>3. The solution — a human-centric system</h2>
+  <h2>4. What I tried to do to fix it</h2>
   <div class="col">
-    <p>Three commitments, which explain nearly every choice below.</p>
-    <p><b>Everything is an ordinary text file.</b> No servers, no databases, no dashboard to keep open. The project's state lives in plain text files inside the project folder, so you can read them and edit them yourself in any text editor — Notepad, VS Code, whatever you use. Search them, back them up, treat them like any other document. If Session Flow vanished tomorrow, the files would still make sense.</p>
-    <p><b>The commands speak English and tell you what to do next.</b> You are never expected to keep track of where the project has got to, or to remember a step. One command to start work, one to stop. Everything between either happens automatically or arrives as a yes/no question with the consequence spelled out. No command assumes you already know what a <em>branch</em>, a <em>worktree</em> or a <em>session</em> is — each is explained the first time it comes up.</p>
-    <p><b>Threads of work run in parallel and talk to each other.</b> Several conversations can work on one project at once without colliding, because each gets its own private copy. They hand work between each other, and each thread has an <b>Inbox</b> where you — or another thread — can leave a note for it to pick up next time.</p>
+    <p>Every one of those problems got its own fix, built when it bit me. Session Flow is what those fixes became once there were enough of them to be a system.</p>
+    <div class="scene">
+      <p><b>The first thing I tried was a background program that just saved everything it found.</b> It was the obvious answer to forgetting: take the remembering away entirely. It worked for one project, one person, one thing at a time, and it broke the moment several strands ran at once, because a program that saves everything cannot tell finished work from work another live session is halfway through. It swept up work belonging to running sessions and corrupted the project's official history.</p>
+      <p>That taught me the rule the rest of this is built on: automation without ownership rules is not safety, it is a faster way to break something. It was retired.</p>
+    </div>
+    <p>Here is what replaced it, in the order I built it.</p>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <tr><th>What kept going wrong</th><th>What I built</th></tr>
+      <tr><td>Sessions degrading as they filled up</td><td><b>The handoff</b>, a summary each session leaves for the next</td></tr>
+      <tr><td>Forgetting to commit and push</td><td><b><code>/wrap</code></b>, one command to close a session properly</td></tr>
+      <tr><td>Finished work sitting unmerged in a worktree</td><td>The same command, now telling me it was there</td></tr>
+      <tr><td>Losing track of workstreams across projects</td><td>One list showing every workstream I had running</td></tr>
+      <tr><td>Not knowing where I was up to, and not reading the plans</td><td><b>The Board</b>, the plan as phases and tasks I could actually scan, with a place to log new ideas</td></tr>
+      <tr><td>One document being written by several workstreams</td><td><b>One handoff per workstream</b></td></tr>
+      <tr><td>Stopping mid-task and merging unfinished work</td><td><b><code>/wrap-lite</code></b>, which saves and hands over without merging anything</td></tr>
+      <tr><td>Not being able to ask an old conversation anything</td><td><b>The archive</b> and <b><code>/recall</code></b></td></tr>
+      <tr><td>Still forgetting to commit</td><td><b>Automatic saving after every exchange</b>, and a <b>ledger</b> recording everything brought into the real project</td></tr>
+      <tr><td>Merge errors, conflicts, work lost</td><td><b><code>/workon</code></b>, which asks git what state things are in before anything starts</td></tr>
+      <tr><td>Still forgetting to merge</td><td>The same command, now offering to do it for me</td></tr>
+      <tr><td>Copy-pasting notes between workstreams by hand</td><td><b>Drop</b>, a mailbox that delivers a note to the right Board</td></tr>
+    </table>
+  </div>
+  <div class="col">
+    <p>Three rules came out of building it, and they explain nearly every choice in the finished thing.</p>
+    <p><b>Everything is an ordinary text file.</b> No servers, no databases, no dashboard I have to keep open. The project's state lives in plain text files inside the project folder, so I can read them and edit them myself in any text editor. I can search them, back them up, treat them like any other document. If Session Flow vanished tomorrow, the files would still make sense.</p>
+    <p><b>The commands speak English and tell me what to do next.</b> I am never expected to keep track of where a project has got to, or to remember a step. One command to start work, one to stop. Everything in between either happens automatically or arrives as a yes or no question with the consequence spelled out.</p>
+    <p><b>Threads of work run in parallel and talk to each other.</b> Several conversations can work on one project at once without colliding, because each gets its own private copy. They hand work between each other, and each thread has an <b>Inbox</b> where I, or another thread, can leave a note for it to pick up next time.</p>
   </div>
 
-  <h2>4. What it is — the core concepts</h2>
+  <h2>5. The way I work now</h2>
   <div class="col">
-    <p>Eleven terms carry the whole system. Everything else is in the glossary at the end.</p>
+    <p>Two commands. <code>/workon</code> to start. <code>/wrap</code> to stop. They are the only two I have to remember.</p>
+    <p>Everything else happens underneath. The work is committed after every exchange and pushed to a private copy online. Notes are written for the next session, the plan is kept up to date, merges are managed for me, and every conversation is kept so I can ask it questions later. I am told in plain English what happened, what needs to happen next, and exactly what to copy and paste.</p>
+    <h3>The pieces</h3>
+    <p>Eleven words carry the whole system. Everything else is in the glossary at the end.</p>
   </div>
   <div class="tablewrap">
     <table>
       <tr><th>Term</th><th>What it means</th></tr>
-      <tr><td><b>Board</b></td><td>The workstream's high-level plan — what you are working on now and what comes after, split into <b>phases</b> so you can see where you are in the arc of the work.</td></tr>
-      <tr><td><b>Command</b></td><td>A plain-English instruction you type, starting with a slash — <code>/workon</code>, <code>/wrap</code>. Nine exist; <b>you only need to learn three</b> to run the whole system.</td></tr>
-      <tr><td><b>Draft copy</b></td><td>A private folder where one session's changes happen, leaving the official copy untouched until you approve the work. Git calls it a <b>worktree</b>. You never have to use either word.</td></tr>
-      <tr><td><b>Drop</b></td><td>The AI's inbox for passing ideas between workstreams — a note left in a mailbox outside every project, which <code>/workon</code> folds into the right Board's Inbox.</td></tr>
-      <tr><td><b>Handoff</b></td><td>The summary one session leaves for the next: where things stand, what is done, what is next, what is unresolved. The note you would leave a colleague taking over your desk.</td></tr>
-      <tr><td><b>Hook</b></td><td>A small background program Claude Code runs automatically at set moments. Hooks are what save your work without you asking. Six exist; you never run one yourself.</td></tr>
-      <tr><td><b>Inbox</b></td><td>The section at the bottom of the Board where new ideas wait to be <b>triaged</b>: sorted and prioritised against the existing plan. Issues, blockers, things to discuss, a thought you had in the shower. Type into it yourself whenever you like, or ask Claude to add something for you.</td></tr>
-      <tr><td><b>Official copy</b></td><td>The real, current version of the project. Git keeps it on the <code>main</code> <b>branch</b> — a branch being one line of work, a version of the project's history you can change without disturbing another.</td></tr>
-      <tr><td><b>Project</b></td><td>The overarching initiative — one folder on your computer, tracked by git. What you would normally call "the thing I am building".</td></tr>
+      <tr><td><b>Board</b></td><td>The workstream's high-level plan: what I am working on now and what comes after, split into <b>phases</b> so I can see where I am in the arc of the work.</td></tr>
+      <tr><td><b>Command</b></td><td>A plain-English instruction I type, starting with a slash, like <code>/workon</code> or <code>/wrap</code>. Nine exist; <b>only three need learning</b> to run the whole system.</td></tr>
+      <tr><td><b>Draft copy</b></td><td>A private folder where one session's changes happen, leaving the official copy untouched until I approve the work. Git calls it a <b>worktree</b>. I never have to use either word.</td></tr>
+      <tr><td><b>Drop</b></td><td>The AI's inbox for passing ideas between workstreams: a note left in a mailbox outside every project, which <code>/workon</code> folds into the right Board's Inbox.</td></tr>
+      <tr><td><b>Handoff</b></td><td>The summary one session leaves for the next: where things stand, what is done, what is next, what is unresolved. The note I would leave a colleague taking over my desk.</td></tr>
+      <tr><td><b>Hook</b></td><td>A small background program Claude Code runs automatically at set moments. Hooks are what save my work without my asking. Six exist; I never run one myself.</td></tr>
+      <tr><td><b>Inbox</b></td><td>The section at the bottom of the Board where new ideas wait to be <b>triaged</b>, meaning sorted and prioritised against the existing plan. Issues, blockers, things to discuss, a thought I had in the shower. I type into it myself whenever I like, or ask Claude to add something.</td></tr>
+      <tr><td><b>Official copy</b></td><td>The real, current version of the project. Git keeps it on the <code>main</code> <b>branch</b>, a branch being one line of work, a version of the project's history that can change without disturbing another.</td></tr>
+      <tr><td><b>Project</b></td><td>The overarching initiative: one folder on my computer, tracked by git. What I would normally call "the thing I am building".</td></tr>
       <tr><td><b>Session</b></td><td>One working conversation with Claude, from opening it to closing it down. A workstream is made of many sessions, one after another.</td></tr>
       <tr><td><b>Workstream</b></td><td>One strand of work inside a project: a feature, an area, a long-running effort. It has a short name like <code>billing-rework</code>. A project can run several at once.</td></tr>
     </table>
   </div>
 
-  <div class="col">
-    <h3 id="a-drop">How a drop works</h3>
-    <ol>
-      <li>A session working inside a draft copy sees only its own private snapshot of the project — including its own snapshot of every Board. Writing a note onto another workstream's Board from there would edit a stale version, and it would surface days later in the wrong shape.</li>
-      <li>So the session <b>files a drop</b> instead: the note goes into a mailbox that sits outside every project.</li>
-      <li>Next time you open the workstream it was addressed to with <code>/workon</code>, Claude collects the drop, folds it into that Board's Inbox, and triages it with you.</li>
-      <li>The drop deletes itself once delivered. The Board's Inbox is the permanent record.</li>
-    </ol>
-    <p>You never need to look at the queue. And when something cannot wait for the next session, one live session messages another directly with the <code>SendMessage</code> command.</p>
-  </div>
-
-  <h2>5. How it works — a day in the life</h2>
-  <div class="col"><h3>The commands</h3>
-    <p>Nine exist. The three highlighted are the ones you actually use.</p>
-  </div>
+  <div class="col"><h3>The commands</h3><p>Nine exist. The three in bold are the ones I actually use.</p></div>
   <div class="tablewrap">
     <table>
-      <tr><th>Command</th><th>What it does</th><th>When to use it</th></tr>
-      <tr><td><code>/flow-help</code></td><td>Loads this guide</td><td>When you need a reminder</td></tr>
-      <tr><td><code>/land</code></td><td><b>Landing</b> is Session Flow's word for bringing finished work into the official copy — with your approval, after the tests pass</td><td>Rarely; <code>/workon</code> offers it for you</td></tr>
+      <tr><th>Command</th><th>What it does</th><th>When it comes up</th></tr>
+      <tr><td><code>/flow-help</code></td><td>Loads this guide</td><td>When I want a reminder</td></tr>
+      <tr><td><code>/land</code></td><td><b>Landing</b> is Session Flow's word for bringing finished work into the official copy, with my approval, after the tests pass</td><td>Rarely; <code>/workon</code> offers it for me</td></tr>
       <tr><td><code>/quickfix &lt;what&gt;</code></td><td>A tiny fix, tested and brought home in one gesture</td><td>30-second fixes that do not deserve a session</td></tr>
-      <tr><td><code>/recall &lt;scope&gt; &lt;question&gt;</code></td><td>Asks a helper "what did we say or decide about X" — it reads the archive in its own memory and hands back just the answer</td><td>When you need something from an old session</td></tr>
-      <tr><td><code>/repo-health</code></td><td>A snapshot of the project's state, built by asking git rather than from memory</td><td>Any time you want to know what is going on</td></tr>
-      <tr><td><b><code>/workon &lt;name&gt;</code></b></td><td>Starts or resumes a workstream: offers to bring home any finished work, sets up your private working space, briefs you on where things stand</td><td>Every time you sit down to work</td></tr>
-      <tr><td><b><code>/wrap</code></b></td><td>Closes out the session: updates the handoff and Board, saves everything</td><td>When you are stopping for now</td></tr>
+      <tr><td><code>/recall &lt;scope&gt; &lt;question&gt;</code></td><td>Asks a helper "what did we say or decide about X". It reads the archive in its own memory and hands back just the answer</td><td>When I need something out of an old session</td></tr>
+      <tr><td><code>/repo-health</code></td><td>A snapshot of the project's state, built by asking git rather than from memory</td><td>Any time I want to know what is going on</td></tr>
+      <tr><td><b><code>/workon &lt;name&gt;</code></b></td><td>Starts or resumes a workstream: offers to bring home any finished work, sets up my private working space, briefs me on where things stand</td><td>Every time I sit down to work</td></tr>
+      <tr><td><b><code>/wrap</code></b></td><td>Closes out the session: updates the handoff and Board, saves everything</td><td>When I am stopping for now</td></tr>
       <tr><td><code>/wrap-end</code></td><td>Everything <code>/wrap</code> does, plus tidies the working space away</td><td>Parking the project for a while</td></tr>
-      <tr><td><b><code>/wrap-lite</code></b></td><td>Quick save, plus a ready-to-paste opener for a fresh conversation</td><td>Conversation full, but you are mid-task</td></tr>
+      <tr><td><b><code>/wrap-lite</code></b></td><td>Quick save, plus a ready-to-paste opener for a fresh conversation</td><td>Conversation full, but I am mid-task</td></tr>
     </table>
   </div>
 
   <div class="col">
-    <h3>The working day</h3>
-    <ul class="rail">
-      <li><b>You start: <code>/workon billing-rework</code>.</b> Claude asks git what state the project is in — never its own memory. If an earlier session left finished work, it offers: <em>"Land these first? (recommended — takes about a minute.)"</em> Then it sets up your working folder, reads the handoff and Board, sorts anything in the Inbox with you, and briefs you. <b>It waits for your go-ahead before touching anything.</b></li>
-      <li><b>You work.</b> Nothing to remember. After every exchange your work is committed and pushed to <b>GitHub</b> — the online service holding your project's backup copy. If the computer dies mid-sentence, you lose the sentence.</li>
-      <li><b>Claude watches how full the conversation is getting.</b> At roughly three-quarters full you get a one-time nudge to move to a fresh conversation — early enough that the handoff gets written properly rather than in a panic. A second, more urgent nudge fires if the conversation is about to compact itself.</li>
-      <li><b>You stop, one of three ways.</b> Mid-task with the conversation full → <code>/wrap-lite</code>, which hands you an opener to paste into a new conversation. Done for now → <code>/wrap</code>, which answers one question: <b>is this finished?</b> Complete and tests pass → <span class="pill ready">ready</span> ("this can be brought home"); otherwise <span class="pill">in progress</span> with a one-line <b>status note</b> saying what is left. Parking the project → <code>/wrap-end</code>: all of that, plus the working folder is tidied away, the work still safe on GitHub and still marked ready.</li>
-      <li><b>Later — maybe days later — the work comes home.</b> The next <code>/workon</code> finds the ready work and offers to land it. Claude shows you a one-line summary of each piece, asks which to bring in, checks each still fits the latest official copy, <b>runs the tests</b>, folds the session into one tidy history entry, updates the handoff and ledger, and clears the draft away. A failed test sets that piece aside with a status note — everything else still lands, and nothing is ever half-landed.</li>
+    <h3>A working day</h3>
+    <p><b>1. I start: <code>/workon billing-rework</code>.</b> Claude asks git what state the project is in, never its own memory. If an earlier session left finished work, it offers: <em>"Land these first? (recommended, takes about a minute.)"</em> Then it sets up my working folder, reads the handoff and Board, sorts anything in the Inbox with me, and briefs me. <b>It waits for my go-ahead before touching anything.</b></p>
+    <p><b>2. I work.</b> Nothing to remember. After every exchange my work is committed and pushed to GitHub. If the computer dies mid-sentence, I lose the sentence.</p>
+    <p><b>3. Claude watches how full the conversation is getting.</b> At roughly three-quarters full I get a one-time nudge to move to a fresh conversation, early enough that the handoff gets written properly rather than in a panic. A second, more urgent nudge fires if the conversation is about to compact itself.</p>
+    <p><b>4. I stop, one of three ways:</b></p>
+    <ul>
+      <li><b>Mid-task, conversation full:</b> <code>/wrap-lite</code>. Updates the handoff, hands me an opener to paste into a new conversation, merges nothing.</li>
+      <li><b>Done for now:</b> <code>/wrap</code>. Updates the handoff and Board, records decisions, saves everything, and answers one question: is this finished? Complete and tests passing means <b>ready</b>, which is to say it can be brought home. Otherwise <b>in progress</b>, with a one-line <b>status note</b> saying what is left.</li>
+      <li><b>Parking the project:</b> <code>/wrap-end</code>. All of the above, plus the working folder is tidied away. The work stays safe on GitHub, still marked ready.</li>
     </ul>
-    <p>Every wrap ends with two short blocks so you never hunt back through the conversation: what it just did, then a numbered <b>Your next steps</b>.</p>
-    <p><b>Tiny fixes skip all of it.</b> <code>/quickfix fix the typo in the welcome email</code> makes the change in a throwaway draft, tests it, shows you a one-line preview, brings it home and cleans up.</p>
-  </div>
+    <p>Every wrap ends with two short blocks so I never have to hunt back through the conversation: what it just did, then a numbered <b>Your next steps</b>, naming the folder to open and giving me the exact thing to paste.</p>
+    <p><b>5. Later, maybe days later, the work comes home.</b> The next <code>/workon</code> finds the ready work and offers to land it. Claude shows me a one-line summary of each piece, asks which to bring in, checks each one still fits the latest official copy, <b>runs the tests</b>, folds the session into one tidy history entry, updates the handoff and ledger, and clears the draft away. A failed test sets that piece aside with a status note; everything else still lands, and nothing is ever half-landed.</p>
+    <p><b>Tiny fixes skip all of it.</b> <code>/quickfix fix the typo in the welcome email</code> makes the change in a throwaway draft, tests it, shows me a one-line preview, brings it home and cleans up.</p>
 
-  <div class="col"><h3>What runs by itself — the six hooks</h3>
-    <p>You never invoke these. They are what makes the system work in practice, and all fail <em>safe</em>: an error lets your work continue and says so, rather than blocking you.</p>
+    <h3>How a drop works</h3>
+    <ol>
+      <li>A session working inside a draft copy sees only its own private snapshot of the project, including its own snapshot of every Board. Writing a note onto another workstream's Board from there would edit a stale version, and it would surface days later in the wrong shape.</li>
+      <li>So the session <b>files a drop</b> instead: the note goes into a mailbox that sits outside every project.</li>
+      <li>Next time I open the workstream it was addressed to with <code>/workon</code>, Claude collects the drop, folds it into that Board's Inbox, and triages it with me.</li>
+      <li>The drop deletes itself once delivered. The Board's Inbox is the permanent record.</li>
+    </ol>
+    <p>I never need to look at the queue. And when something cannot wait for the next session, one live session messages another directly with the <code>SendMessage</code> command.</p>
+
+    <h3>What runs by itself</h3>
+    <p>Six background programs. I never invoke any of them, and they all fail <em>safe</em>: an error lets my work continue and says so, rather than blocking me.</p>
   </div>
   <div class="tablewrap">
     <table>
-      <tr><th>Hook</th><th>When it fires</th><th>What it does for you</th></tr>
+      <tr><th>Hook</th><th>When it fires</th><th>What it does</th></tr>
       <tr><td><b>flow-archive</b></td><td>After every exchange</td><td><b>The archivist.</b> Copies the conversation to a permanent archive folder, keeping a readable version of every conversation forever.</td></tr>
-      <tr><td><b>flow-checkpoint</b></td><td>After every exchange</td><td><b>The auto-saver.</b> Commits your work and pushes it to GitHub. This is why you cannot lose anything.</td></tr>
-      <tr><td><b>flow-context-nudge</b></td><td>Conversation ~three-quarters full</td><td>The one-time suggestion to move to a fresh conversation.</td></tr>
-      <tr><td><b>flow-main-guard</b></td><td>Before any of Claude's edits or git commands</td><td><b>The guard.</b> Stops Claude editing the official copy directly while parallel sessions run, and stops a wrapped conversation making further edits. Claude's tools only — your own edits are always free.</td></tr>
-      <tr><td><b>flow-precompact</b></td><td>Just before a conversation compacts itself</td><td>The same suggestion, with urgency — so the handoff is written before detail is lost.</td></tr>
-      <tr><td><b>flow-report</b></td><td>When a session starts</td><td><b>The doorman.</b> One line of orientation — e.g. "2 pieces of work READY to land". And if you have opened a folder that <em>holds</em> your projects rather than one of the projects itself, it says so straight away, because none of the rest of this works from there. Read-only.</td></tr>
+      <tr><td><b>flow-checkpoint</b></td><td>After every exchange</td><td><b>The auto-saver.</b> Commits the work and pushes it to GitHub. This is why I cannot lose anything.</td></tr>
+      <tr><td><b>flow-context-nudge</b></td><td>Conversation about three-quarters full</td><td>The one-time suggestion to move to a fresh conversation.</td></tr>
+      <tr><td><b>flow-main-guard</b></td><td>Before any of Claude's edits or git commands</td><td><b>The guard.</b> Stops Claude editing the official copy directly while parallel sessions run, and stops a wrapped conversation making further edits. Claude's tools only; my own edits are always free.</td></tr>
+      <tr><td><b>flow-precompact</b></td><td>Just before a conversation compacts itself</td><td>The same suggestion, with urgency, so the handoff is written before detail is lost.</td></tr>
+      <tr><td><b>flow-report</b></td><td>When a session starts</td><td><b>The doorman.</b> One line of orientation, for example <em>"2 pieces of work READY to land."</em> And if I have opened a folder that <em>holds</em> my projects rather than one of the projects itself, it says so straight away, because none of the rest of this works from there. Read-only.</td></tr>
     </table>
   </div>
 
   <div class="col">
     <h3>Starting a project</h3>
-    <p>A project is a normal folder on your computer, wherever you keep your work — not inside any special Claude folder. The one requirement is that it is tracked by git. If Claude Code already works on the project, it almost certainly is. For a brand-new folder, tell Claude <em>"set up git in this folder and connect it to GitHub"</em> — a one-minute job.</p>
-    <p>After that there is nothing to configure. <code>/workon &lt;name&gt;</code> creates the working space; the first <code>/wrap</code> writes the handoff and settings file. When Claude writes <b>tests</b> — small automatic checks that the thing still does what it should — <code>/wrap</code> records how to run them, and from then on they run before any work reaches the official copy.</p>
+    <p>A project is a normal folder on the computer, wherever the work is kept, not inside any special Claude folder. The one requirement is that it is tracked by git. If Claude Code already works on the project, it almost certainly is. For a brand-new folder, tell Claude <em>"set up git in this folder and connect it to GitHub"</em>, which is a one-minute job.</p>
+    <p>After that there is nothing to configure. <code>/workon &lt;name&gt;</code> creates the working space; the first <code>/wrap</code> writes the handoff and settings file. When Claude writes <b>tests</b>, meaning small automatic checks that the thing still does what it should, <code>/wrap</code> records how to run them, and from then on they run before any work reaches the official copy.</p>
     <p>The Board comes later, deliberately: phases only mean something once a plan exists, so the Board is created the moment a plan is approved, with phases matching that plan's milestones. A workstream that is still an open question does not get one yet. Ask for one any time with <code>/dev-project setup</code>.</p>
 
     <h3>Bringing an existing project in</h3>
-    <p>Nothing converts until you touch it. The first time <code>/workon</code> or <code>/wrap</code> meets a project whose handoff predates Session Flow, it offers a one-time migration: one yes archives the old handoff, rewrites it to the current format, creates the settings file, and converts any external board into a local Board file — showing you the mapping for approval first. It copies everything as it stands, flagging what looks out of date rather than dropping it silently. Bringing the content up to date happens <em>with you</em>, in the next live session.</p>
-  </div>
+    <p>Nothing converts until it is touched. The first time <code>/workon</code> or <code>/wrap</code> meets a project whose handoff predates Session Flow, it offers a one-time migration: one yes archives the old handoff, rewrites it to the current format, creates the settings file, and converts any external board into a local Board file, showing the mapping for approval first. It copies everything as it stands, flagging what looks out of date rather than dropping it silently. Bringing the content up to date happens with me, in the next live session.</p>
 
-  <h2>6. What you get</h2>
-  <div class="col">
+    <h3>What it gives me</h3>
     <ul>
-      <li><b>A developer-grade environment without the learning curve.</b> Version control, parallel work, automatic test checks, reversible history — all running properly, none of it requiring you to learn git.</li>
-      <li><b>Work that cannot be lost.</b> Every exchange is saved and backed up. Forgetting to save is not a failure mode here; forgetting to wrap costs you a summary, not work.</li>
-      <li><b>A permanent, searchable history.</b> Every conversation kept in readable form, forever, outside the project. <code>/recall</code> answers questions from it — <em>"what did we decide about the pricing tiers?"</em> — without dragging the old conversation into your current one.</li>
-      <li><b>Nothing changes without your yes.</b> Claude never merges work on its own. Always a preview, a test run, an approval.</li>
-      <li><b>Parallel threads that coordinate.</b> Several strands at once, each isolated, each able to hand notes to the others.</li>
+      <li><b>A developer-grade environment without the learning curve.</b> Version control, parallel work, automatic test checks, reversible history, all running properly, none of it requiring me to learn git.</li>
+      <li><b>Work that cannot be lost.</b> Every exchange is saved and backed up. Forgetting to save is not a failure mode here; forgetting to wrap costs me a summary, not work.</li>
+      <li><b>A permanent, searchable history.</b> Every conversation kept in readable form, forever, outside the project. <code>/recall</code> answers questions from it, for example <em>"what did we decide about the pricing tiers?"</em>, without dragging the old conversation into the current one.</li>
+      <li><b>Nothing changes without my yes.</b> Claude never merges work on its own. Always a preview, a test run, an approval.</li>
+      <li><b>Parallel threads that coordinate.</b> Five workstreams running at once on one project, each isolated, each merged back cleanly, each able to hand notes to the others.</li>
       <li><b>A guide, not just a tool.</b> Every command says what it just did and what to do next, in plain English.</li>
     </ul>
-    <div class="nextstep"><p><b>Your next step:</b> open a project and run <code>/workon &lt;name&gt;</code>. For a new workstream, use a short lowercase name like <code>billing-rework</code>. Everything else is offered to you as you go.</p></div>
+    <p>Some of that is standard practice. Handovers, notes between sessions, backups: none of it is new. The part that makes it genuinely useful to me is that I do not have to remember <em>how</em> any of it is done. It just happens. The three pieces I would not now work without are the archiving, the plain-English explanations, and the copy-and-paste commands telling me exactly what to do and what to rename.</p>
+    <div class="nextstep"><p>I start something new, or come back to it three weeks later, the same way. That is what life is like for me now.</p></div>
   </div>
 
   <h2>Appendix A — where things live</h2>
@@ -658,22 +740,27 @@ Overturned: (1) &lt;what was held before&gt; → &lt;what replaced it&gt; — &l
 
 <script>
 (function(){
-  var tabs = { plain: document.getElementById('tab-plain'), tech: document.getElementById('tab-tech') };
-  var panels = { plain: document.getElementById('panel-plain'), tech: document.getElementById('panel-tech') };
+  var names = ['summary','plain','tech'];
+  var tabs = {}, panels = {};
+  names.forEach(function(k){
+    tabs[k] = document.getElementById('tab-' + k);
+    panels[k] = document.getElementById('panel-' + k);
+  });
   function select(which){
-    for (var k in tabs){
+    names.forEach(function(k){
       var on = (k === which);
       tabs[k].setAttribute('aria-selected', on ? 'true' : 'false');
       panels[k].hidden = !on;
-    }
+    });
     try { localStorage.setItem('sessionflow-tab', which); } catch(e){}
     window.scrollTo(0,0);
   }
-  tabs.plain.addEventListener('click', function(){ select('plain'); });
-  tabs.tech.addEventListener('click', function(){ select('tech'); });
+  names.forEach(function(k){
+    tabs[k].addEventListener('click', function(){ select(k); });
+  });
   var saved = null;
   try { saved = localStorage.getItem('sessionflow-tab'); } catch(e){}
-  if (saved === 'tech') select('tech');
+  if (names.indexOf(saved) !== -1) select(saved); else select('summary');
 })();
 </script>
 
