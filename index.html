@@ -187,10 +187,9 @@
 
   <h2>2. The core problem with standard AI sessions</h2>
   <div class="col">
-    <p>Four things go wrong without a system like this. Session Flow is built to solve exactly these.</p>
+    <p>Three things go wrong without a system like this. Session Flow is built to solve exactly these.</p>
     <ul>
-      <li><b>Closed conversations have no history.</b> When a session ends, its reasoning ends with it. The files remain; the record of what was tried, rejected and decided does not.</li>
-      <li><b>The history you do get expires.</b> Claude Code — the app you run Claude inside — keeps its record of your conversations for about two weeks, then tidies it away. Anything you want in a month is already gone, and you find out when you go looking.</li>
+      <li><b>Closed conversations have no history.</b> When a session ends, its reasoning ends with it. The files remain; the record of what was tried, rejected and decided does not. Even where the raw transcript survives on disk, it is not something you can ask a question — finding one decision means remembering which conversation made it, then reading back through it.</li>
       <li><b>Context gets squeezed into a few small files.</b> Your <b>context</b> is everything the model can currently see. The usual workaround for a fading conversation is a summary file. But a summary is a compression, and "why did we do it that way" is the first thing compression throws out — which is exactly what you need six weeks later.</li>
       <li><b>You are forced to work one thing at a time.</b> Git and Claude Code, used plainly, want one line of work in one folder. Two conversations on the same project collide. Parallel work becomes a bottleneck instead of an advantage.</li>
     </ul>
